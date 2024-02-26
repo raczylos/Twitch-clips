@@ -1,0 +1,151 @@
+
+body {
+    margin: 0;
+    /* background-color: #121212; */
+    background-color: #071108;
+    color: white;
+}
+
+.main-container {
+    /* margin-left: 5%; 
+    margin-right: 5%; */
+
+    margin-left: 5%; 
+    margin-right: 5%;
+    
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #111111;
+    /* background-color: #564787; */
+    /* background-color: #564787; */
+    align-items: center;
+    color: white;
+    gap: 2rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.navbar .site-title {
+    font-size: 2rem;
+    color: #564787;
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+}
+
+.navbar a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.clip-list ul {
+    display: flex;
+    flex-wrap: wrap;
+    
+    justify-content: space-between;
+    padding: 0;
+
+   
+    
+    &::after {
+        content: "";
+        width: 522px; /* card width*/
+    }
+}
+
+
+
+
+
+.clip-card {
+    padding: 10px;
+    margin: 10px;
+
+    
+    border: 1px solid #687aff;
+    border-radius: 10px;
+
+}
+
+.clip-card:hover {
+    border: 1px solid transparent;
+    background: linear-gradient(#071108,#071108)padding-box, linear-gradient(var(--angle),#070707,#687aff) border-box; 
+   
+   
+    animation: 2s rotate linear infinite;
+    
+}
+
+
+
+@keyframes rotate {
+    to {
+      --angle: 360deg;
+    }
+}
+
+@property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.clip-card .card-title h2 {
+    margin: 0;
+    margin-bottom: 5px;
+    
+}
+
+.clip-card .card-content img {
+    max-width: 300px;
+}
+
+.clip-card .card-action {
+    
+}
+
+.clip-list li {
+    list-style-type: none;
+}
+
+.clip-embed {
+    border: none;
+}
+
+.card-skeleton {
+    opacity: .7;
+    animation: skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: hsl(200, 20%, 70%);
+    }
+
+    100% {
+        background-color: hsl(200, 20%, 95%);
+    }
+}
+
+.skeleton-text {
+    width: 100%;
+    height: .5rem;
+    margin-bottom: .25rem;
+    border-radius:  .125rem;
+    
+}
+
+.main-container .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* height: 100vh; */
+    margin-left: 0;
+    margin-right: 0;
+}

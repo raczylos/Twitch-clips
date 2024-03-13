@@ -3,23 +3,14 @@ package com.example.twitch.auth;
 import com.example.twitch.config.JwtService;
 import com.example.twitch.user.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.lang.constant.Constable;
-import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -82,7 +73,14 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticateTwitchUser(String twitchAccessToken) {
-        TwitchUser twitchUser = getTwitchUserInfo(twitchAccessToken);
+        var twitchUserData = getTwitchUserInfo(twitchAccessToken).getData()[0];
+
+        TwitchUser twitchUser = new TwitchUser(
+                twitchUserData.getLogin(),
+                twitchUserData.getEmail(),
+                twitchUserData.getId(),
+                Role.USER
+        );
 
         Optional<TwitchUser> existingUser = twitchUserRepository.findByEmail(twitchUser.getEmail());
 
@@ -100,7 +98,7 @@ public class AuthenticationService {
         }
     }
 
-    public TwitchUser getTwitchUserInfo(String token) {
+    public TwitchUsersResponse getTwitchUserInfo(String token) {
 
         String twitchApiUrl = "https://api.twitch.tv/helix/users";
 
@@ -111,26 +109,21 @@ public class AuthenticationService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchApiUrl);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<TwitchUserResponse> twitchUserResponse = restTemplate.exchange(
+        ResponseEntity<TwitchUsersResponse> twitchUserResponse = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                TwitchUserResponse.class
+                TwitchUsersResponse.class
         );
 
 
 
 
-        var twitchUserResponseData = twitchUserResponse.getBody().getData();
+        var twitchUserResponseData = twitchUserResponse.getBody();
 
-        TwitchUser twitchUser = new TwitchUser(
-                twitchUserResponseData[0].getLogin(),
-                twitchUserResponseData[0].getEmail(),
-                twitchUserResponseData[0].getId(),
-                Role.USER
-        );
 
-        return twitchUser;
+
+        return twitchUserResponseData;
     }
 
     public String validateTwitchAccessToken(String token) {

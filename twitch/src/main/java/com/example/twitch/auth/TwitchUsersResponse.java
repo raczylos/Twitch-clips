@@ -2,7 +2,7 @@ package com.example.twitch.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TwitchUserResponse {
+public class TwitchUsersResponse {
 
     @JsonProperty("data")
     private TwitchUserData[] data;

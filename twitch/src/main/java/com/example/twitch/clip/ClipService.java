@@ -1,7 +1,6 @@
 package com.example.twitch.clip;
 
-import com.example.twitch.auth.AuthenticationService;
-import com.example.twitch.auth.TwitchUsersResponse;
+import com.example.twitch.user.TwitchUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -20,14 +18,17 @@ public class ClipService {
 
     private final ClipRepository clipRepository;
 
+    private final TwitchUserService twitchUserService;
+
 
 
     @Value("${twitch-client-id}")
     private String twitchClientId;
 
     @Autowired
-    public ClipService(ClipRepository clipRepository) {
+    public ClipService(ClipRepository clipRepository, TwitchUserService twitchUserService) {
         this.clipRepository = clipRepository;
+        this.twitchUserService = twitchUserService;
     }
 
     public List<Clip> getClips() {
@@ -43,7 +44,7 @@ public class ClipService {
         headers.setBearerAuth(token);
         headers.set("Client-Id", twitchClientId);
 
-        var twitchUserData = getTwitchUserInfoByLogin(token, login);
+        var twitchUserData = twitchUserService.getTwitchUserInfoByLogin(token, login);
 
         var twitchUserId = twitchUserData.getData()[0].getId();
 
@@ -82,30 +83,7 @@ public class ClipService {
 
     }
 
-    public TwitchUsersResponse getTwitchUserInfoByLogin(String token, String login) {
 
-        String twitchApiUrl = "https://api.twitch.tv/helix/users";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        headers.set("Client-Id", twitchClientId);
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchApiUrl)
-                .queryParam("login", login);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<TwitchUsersResponse> twitchUserResponse = restTemplate.exchange(
-                builder.toUriString(),
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                TwitchUsersResponse.class
-        );
-
-        var twitchUserResponseData = twitchUserResponse.getBody();
-
-        return twitchUserResponseData;
-
-    }
 
 
 

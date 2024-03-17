@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "api/v1/clips")
+@RequestMapping(path = "api/v1/twitch/clips")
 public class ClipController {
     private final ClipService clipService;
 
@@ -34,11 +34,11 @@ public class ClipController {
         return ResponseEntity.ok(clipService.streamerPopularClips(accessToken, "xayoo_", startedAt, endedAt));
     }
 
-    @GetMapping("/getTwitchUserInfoByLogin")
-    public ResponseEntity<TwitchUsersResponse> getTwitchUserInfoByLogin(@RequestParam("accessToken") String accessToken) {
-
-        return ResponseEntity.ok(clipService.getTwitchUserInfoByLogin(accessToken, "lightt__"));
-    }
+//    @GetMapping("/getTwitchUserInfoByLogin")
+//    public ResponseEntity<TwitchUsersResponse> getTwitchUserInfoByLogin(@RequestParam("accessToken") String accessToken) {
+//
+//        return ResponseEntity.ok(clipService.getTwitchUserInfoByLogin(accessToken, "lightt__"));
+//    }
 
 
 

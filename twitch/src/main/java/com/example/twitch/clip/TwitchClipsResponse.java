@@ -6,6 +6,7 @@ import java.util.List;
 
 public class TwitchClipsResponse {
 
+    @JsonProperty("data")
     private ClipData[] data;
 //    private Pagination pagination;
 

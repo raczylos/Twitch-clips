@@ -16,7 +16,7 @@ public class TwitchUser implements UserDetails {
     @Id
     @GeneratedValue
     private Long id;
-    private String username;
+    private String login;
     private String email;
     private String twitchId;
     @Enumerated(EnumType.STRING)
@@ -25,16 +25,16 @@ public class TwitchUser implements UserDetails {
     public TwitchUser() {
 
     }
-    public TwitchUser(Long id, String username, String email, String twitchId, Role role) {
+    public TwitchUser(Long id, String login, String email, String twitchId, Role role) {
         this.id = id;
-        this.username = username;
+        this.login = login;
         this.email = email;
         this.twitchId = twitchId;
         this.role = role;
     }
 
-    public TwitchUser(String username, String email, String twitchId, Role role) {
-        this.username = username;
+    public TwitchUser(String login, String email, String twitchId, Role role) {
+        this.login = login;
         this.email = email;
         this.twitchId = twitchId;
         this.role = role;
@@ -49,8 +49,12 @@ public class TwitchUser implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getEmail() {

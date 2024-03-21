@@ -4,10 +4,7 @@ import com.example.twitch.auth.AuthenticationResponse;
 import com.example.twitch.auth.TwitchUsersResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,18 +24,35 @@ public class ClipController {
     }
 
 
-    @GetMapping("/streamerPopularClips")
-    public ResponseEntity<TwitchClipsResponse> getStreamerPopularClips(@RequestParam("accessToken") String accessToken, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
+//    @GetMapping("/streamerPopularClips")
+//    public ResponseEntity<List<Clip>> getStreamerPopularClips(@RequestParam("accessToken") String accessToken, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
+////        clipService.streamerPopularClips(accessToken, "xayoo_");
+//
+//        return ResponseEntity.ok(clipService.streamerPopularClips(accessToken, "xayoo_", startedAt, endedAt));
+//    }
+
+    @GetMapping("/{streamerId}")
+    public ResponseEntity<List<Clip>> getStreamerPopularClips(@RequestParam("accessToken") String accessToken, @PathVariable String streamerId, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
 //        clipService.streamerPopularClips(accessToken, "xayoo_");
 
-        return ResponseEntity.ok(clipService.streamerPopularClips(accessToken, "xayoo_", startedAt, endedAt));
+        return ResponseEntity.ok(clipService.streamerPopularClips(accessToken, streamerId, startedAt, endedAt));
     }
 
 //    @GetMapping("/getTwitchUserInfoByLogin")
 //    public ResponseEntity<TwitchUsersResponse> getTwitchUserInfoByLogin(@RequestParam("accessToken") String accessToken) {
 //
-//        return ResponseEntity.ok(clipService.getTwitchUserInfoByLogin(accessToken, "lightt__"));
+//        return ResponseEntity.ok(clipService.getTwitchUserInfoByLogin(accessToken, "xayoo_"));
 //    }
+
+    @GetMapping("/followed")
+    public ResponseEntity<List<Clip>> getFollowedStreamersPopularClips(@RequestParam("accessToken") String accessToken, @RequestParam("login") String login, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
+        return ResponseEntity.ok(clipService.followedStreamersClips(accessToken, login, startedAt, endedAt));
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<Clip>> getPopularSteamersClips(@RequestParam("accessToken") String accessToken, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
+        return ResponseEntity.ok(clipService.popularStreamersClips(accessToken, startedAt, endedAt));
+    }
 
 
 

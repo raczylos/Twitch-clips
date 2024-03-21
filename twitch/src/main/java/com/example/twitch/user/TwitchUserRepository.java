@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface TwitchUserRepository extends JpaRepository<TwitchUser, Integer> {
     Optional<TwitchUser> findByEmail(String email);
 
+    Optional<TwitchUser> findByLogin(String login);
+
 }

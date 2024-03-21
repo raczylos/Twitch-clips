@@ -29,8 +29,13 @@ public class TwitchUserService {
         this.twitchUserRepository = twitchUserRepository;
     }
 
-    public Optional<TwitchUser> getTwitchUser(String email) {
-        return twitchUserRepository.findByEmail(email);
+//    public Optional<TwitchUser> getTwitchUser(String email) {
+//        return twitchUserRepository.findByEmail(email);
+//
+//    }
+
+    public Optional<TwitchUser> getTwitchUser(String login) {
+        return twitchUserRepository.findByLogin(login);
 
     }
 
@@ -59,7 +64,7 @@ public class TwitchUserService {
 
     }
 
-    public TwitchUserFollowsResponse getTwitchUserFollows(String token, String email) {
+    public TwitchUserFollowsResponse getTwitchUserFollows(String token, String login) {
 
         String twitchApiUrl = "https://api.twitch.tv/helix/channels/followed";
 
@@ -68,7 +73,7 @@ public class TwitchUserService {
         headers.setBearerAuth(token);
         headers.set("Client-Id", twitchClientId);
 
-        Optional<TwitchUser> twitchUser = getTwitchUser(email);
+        Optional<TwitchUser> twitchUser = getTwitchUser(login);
 
         if(twitchUser.isPresent()) {
 

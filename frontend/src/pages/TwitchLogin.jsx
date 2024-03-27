@@ -18,8 +18,7 @@ const TwitchLogin = () => {
             setTwitchAccessToken(twitchAccessToken)
             setTwitchRefreshToken(twitchRefreshToken)
             setJwtToken(jwtToken)
-            // console.log('accessToken', accessToken)
-            // console.log('refreshToken', refreshToken)
+  
 
             Cookies.set('twitchAccessToken', twitchAccessToken , { expires: 1, secure: true, sameSite: 'strict' })
             Cookies.set('twitchRefreshToken', twitchRefreshToken, { expires: 10, secure: true, sameSite: 'strict' })
@@ -31,7 +30,7 @@ const TwitchLogin = () => {
     const handleTwitchLogin =  () => {
         const redirectUri = "http://localhost:8080/api/v1/auth/login/oauth2/code/twitch"
         const clientId = "fkp6o4vmbky1nst0m4nz23es6lxg01"
-        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=user:read:email`;
+        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=user:read:email user:read:follows`;
 
 
         window.location.href = authUrl

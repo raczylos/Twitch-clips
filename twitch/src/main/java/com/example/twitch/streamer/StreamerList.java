@@ -1,12 +1,12 @@
-package com.example.twitch.clip;
+package com.example.twitch.streamer;
 
-public enum Streamer {
+public enum StreamerList {
     xayoo_,
     lukisteve,
     popo,
     cinkrofwest,
     gangamurun,
-    delorione,
+    delordione,
     nieuczesana,
     xntentacion,
     olaczka,

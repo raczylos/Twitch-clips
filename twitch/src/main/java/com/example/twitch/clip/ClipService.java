@@ -1,6 +1,6 @@
 package com.example.twitch.clip;
 
-import com.example.twitch.user.TwitchUserFollowsResponse;
+import com.example.twitch.streamer.StreamerList;
 import com.example.twitch.user.TwitchUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -90,7 +90,7 @@ public class ClipService {
 //
 //    }
 
-    public List<Clip> streamerPopularClips(String token, String streamerId, String startedAt, String endedAt) {
+    public List<Clip> streamerPopularClips(String token, String streamerId, String startedAt, String endedAt, Integer viewCount) {
 
         String twitchApiUrl = "https://api.twitch.tv/helix/clips";
 
@@ -123,7 +123,7 @@ public class ClipService {
             var existingClip = clipRepository.findByClipId(clipData.getId());
 
             if(existingClip.isEmpty()) {
-                if(clipData.getView_count() < 100) {
+                if(clipData.getView_count() < viewCount) {
                     System.out.println("Clip " + clipData.getId() + " rejected for too few views " + clipData.getView_count());
                 } else {
                     Clip clip = new Clip(clipData.getId(), clipData.getUrl(), clipData.getEmbed_url(), clipData.getBroadcaster_id(), clipData.getBroadcaster_name()
@@ -151,7 +151,7 @@ public class ClipService {
 
         for(var followData: follows.getData()) {
             System.out.println(followData.getBroadcaster_login());
-            var streamerClips = streamerPopularClips(token, followData.getBroadcaster_login(), startedAt, endedAt);
+            var streamerClips = streamerPopularClips(token, followData.getBroadcaster_login(), startedAt, endedAt, 200);
             clips.addAll(streamerClips);
         }
 
@@ -163,9 +163,9 @@ public class ClipService {
 
         List<Clip> clips = new ArrayList<>();
 
-        for(var steamer: Streamer.values()) {
-            System.out.println(steamer.toString());
-            var streamerClips = streamerPopularClips(token, steamer.toString(), startedAt, endedAt);
+        for(var streamer: StreamerList.values()) {
+            System.out.println(streamer.toString());
+            var streamerClips = streamerPopularClips(token, streamer.toString(), startedAt, endedAt, 500);
             clips.addAll(streamerClips);
         }
 

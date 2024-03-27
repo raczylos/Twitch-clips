@@ -18,6 +18,8 @@ public class TwitchUser implements UserDetails {
     private Long id;
     private String login;
     private String email;
+
+    @Column(unique = true)
     private String twitchId;
     @Enumerated(EnumType.STRING)
     private Role role;

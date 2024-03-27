@@ -35,14 +35,8 @@ public class ClipController {
     public ResponseEntity<List<Clip>> getStreamerPopularClips(@RequestParam("accessToken") String accessToken, @PathVariable String streamerId, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
 //        clipService.streamerPopularClips(accessToken, "xayoo_");
 
-        return ResponseEntity.ok(clipService.streamerPopularClips(accessToken, streamerId, startedAt, endedAt));
+        return ResponseEntity.ok(clipService.streamerPopularClips(accessToken, streamerId, startedAt, endedAt, 100));
     }
-
-//    @GetMapping("/getTwitchUserInfoByLogin")
-//    public ResponseEntity<TwitchUsersResponse> getTwitchUserInfoByLogin(@RequestParam("accessToken") String accessToken) {
-//
-//        return ResponseEntity.ok(clipService.getTwitchUserInfoByLogin(accessToken, "xayoo_"));
-//    }
 
     @GetMapping("/followed")
     public ResponseEntity<List<Clip>> getFollowedStreamersPopularClips(@RequestParam("accessToken") String accessToken, @RequestParam("login") String login, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
@@ -53,6 +47,8 @@ public class ClipController {
     public ResponseEntity<List<Clip>> getPopularSteamersClips(@RequestParam("accessToken") String accessToken, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
         return ResponseEntity.ok(clipService.popularStreamersClips(accessToken, startedAt, endedAt));
     }
+
+
 
 
 

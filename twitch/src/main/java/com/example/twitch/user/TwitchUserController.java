@@ -1,5 +1,6 @@
 package com.example.twitch.user;
 
+import com.example.twitch.auth.TwitchUsersResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,12 @@ public class TwitchUserController {
     @GetMapping("/follow")
     public ResponseEntity<TwitchUserFollowsResponse> getTwitchUserFollows(@RequestParam("accessToken") String accessToken, @RequestParam("login") String login) {
         return ResponseEntity.ok(twitchUserService.getTwitchUserFollows(accessToken, login));
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<TwitchUsersResponse> getTwitchUserInfoByLogin(@RequestParam("accessToken") String accessToken, @RequestParam("login") String login) {
+
+        return ResponseEntity.ok(twitchUserService.getTwitchUserInfoByLogin(accessToken, login));
     }
 
 

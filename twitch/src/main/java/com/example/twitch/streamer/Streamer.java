@@ -16,6 +16,9 @@ public class Streamer {
     private String twitchId;
     private String profileImageUrl;
 
+    public Streamer() {
+    }
+
     public Streamer(Long id, String login, String displayName, String twitchId, String profileImageUrl) {
         this.id = id;
         this.login = login;

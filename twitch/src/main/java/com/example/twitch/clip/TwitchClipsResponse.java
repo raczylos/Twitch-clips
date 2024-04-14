@@ -115,6 +115,28 @@ public class TwitchClipsResponse {
         public int getVod_offset() {
             return vod_offset;
         }
+
+        @Override
+        public String toString() {
+            return "ClipData{" +
+                    "id='" + id + '\'' +
+                    ", url='" + url + '\'' +
+                    ", embed_url='" + embed_url + '\'' +
+                    ", broadcaster_id='" + broadcaster_id + '\'' +
+                    ", broadcaster_name='" + broadcaster_name + '\'' +
+                    ", creator_id='" + creator_id + '\'' +
+                    ", creator_name='" + creator_name + '\'' +
+                    ", video_id='" + video_id + '\'' +
+                    ", game_id='" + game_id + '\'' +
+                    ", language='" + language + '\'' +
+                    ", title='" + title + '\'' +
+                    ", view_count=" + view_count +
+                    ", created_at='" + created_at + '\'' +
+                    ", thumbnail_url='" + thumbnail_url + '\'' +
+                    ", duration=" + duration +
+                    ", vod_offset=" + vod_offset +
+                    '}';
+        }
     }
 
 //    public static class Pagination {
@@ -131,4 +153,5 @@ public class TwitchClipsResponse {
 //                    '}';
 //        }
 //    }
+
 }

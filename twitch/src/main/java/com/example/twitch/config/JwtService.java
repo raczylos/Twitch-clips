@@ -36,13 +36,26 @@ public class JwtService {
             Map<String, Objects> extraClaims,
             UserDetails userDetails
     ) {
+        return buildToken(extraClaims, userDetails, 1000 * 60 * 24); // 1 day
+    }
+
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
+        return buildToken(new HashMap<>(), userDetails, 10000 * 60 * 24); // 10 days
+    }
+    public String buildToken(
+            Map<String, Objects> extraClaims,
+            UserDetails userDetails,
+            long expiration
+
+    ) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-//                getUsername() is email in that case
-                .setSubject(userDetails.getUsername())
+                .setSubject(userDetails.getUsername()) // getUsername() is email in that case
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 10000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

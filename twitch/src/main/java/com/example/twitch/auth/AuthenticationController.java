@@ -80,8 +80,8 @@ public class AuthenticationController {
         System.out.println("accessToken " + tokens.getAccessToken());
         System.out.println("refreshToken " + tokens.getRefreshToken());
 
-        String redirectUrl = "http://127.0.0.1:5173/login?twitchAccessToken=" + tokens.getAccessToken() +
-                "&twitchRefreshToken=" + tokens.getRefreshToken() + "&accessToken=" + tokens.getAccessToken() + "&refreshToken=" + tokens.getRefreshToken();
+        String redirectUrl = "http://127.0.0.1:5173/login?twitchAccessToken=" + twitchTokens.getAccessToken() +
+                "&twitchRefreshToken=" + twitchTokens.getRefreshToken() + "&accessToken=" + tokens.getAccessToken() + "&refreshToken=" + tokens.getRefreshToken();
 
         RedirectView redirectView = new RedirectView();
         redirectView.setUrl(redirectUrl);

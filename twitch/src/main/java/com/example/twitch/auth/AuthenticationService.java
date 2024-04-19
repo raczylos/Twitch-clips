@@ -1,6 +1,10 @@
 package com.example.twitch.auth;
 
 import com.example.twitch.config.JwtService;
+import com.example.twitch.token.Token;
+import com.example.twitch.token.TokenRepository;
+import com.example.twitch.token.TokenType;
+import com.example.twitch.user.UserType;
 import com.example.twitch.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +25,8 @@ import java.util.Optional;
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
+
+    private final TokenRepository tokenRepository;
     private final TwitchUserRepository twitchUserRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -39,11 +44,12 @@ public class AuthenticationService {
 
 
     public AuthenticationService(UserRepository userRepository,
-                                 TwitchUserRepository twitchUserRepository,
+                                 TokenRepository tokenRepository, TwitchUserRepository twitchUserRepository,
                                  PasswordEncoder passwordEncoder,
                                  JwtService jwtService, AuthenticationManager authenticationManager
                                  ) {
         this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
         this.twitchUserRepository = twitchUserRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -55,16 +61,19 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
 
-        var user = new User(request.getUsername(), request.getEmail(), request.getPassword(), Role.USER);
-        userRepository.save(user);
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        var user = new NormalUser(request.getUsername(), request.getEmail(), encodedPassword, Role.USER, UserType.User);
+        var savedUser = userRepository.save(user);
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-
+        saveUserToken(accessToken, savedUser);
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
 
+
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -75,9 +84,29 @@ public class AuthenticationService {
 
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
+        revokeAllUserTokens(user);
+        saveUserToken(accessToken, user);
 
         return new AuthenticationResponse(accessToken, refreshToken);
     }
+
+    private void saveUserToken(String token, User user) {
+        var tokenToSave = new Token(token, TokenType.BEARER, false, false, user);
+        tokenRepository.save(tokenToSave);
+    }
+
+    private void revokeAllUserTokens(User user){
+        var validUserTokens = tokenRepository.findAllValidTokensByUser(user.getId());
+        if(validUserTokens.isEmpty()) {
+            return;
+        }
+        validUserTokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserTokens);
+    }
+
 
     public void refreshToken (
             HttpServletRequest request,
@@ -87,22 +116,23 @@ public class AuthenticationService {
         if (authHeader == null) {
             return;
         }
-
         if (authHeader.startsWith("Bearer ")) {
             String refreshToken = authHeader.substring(7);
 
             String username = jwtService.extractUsername(refreshToken);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (username != null) {
                 var user = this.userRepository.findByEmail(username).orElse(null);
                 var twitchUser = this.twitchUserRepository.findByEmail(username).orElse(null);
 
-                var userDetails = (user != null) ? user : twitchUser;
+                var specificUser = (user != null) ? user : twitchUser;
 
-                if (jwtService.isTokenValid(refreshToken, userDetails)) {
-                    var accessToken = jwtService.generateToken(userDetails);
-//                    revokeAllUserTokens(userDetails);  TODO
-//                    saveUserToken(userDetails, accessToken); TODO
+                if (jwtService.isTokenValid(refreshToken, specificUser)) {
+                    var accessToken = jwtService.generateToken(specificUser);
+
+                    revokeAllUserTokens(specificUser);
+                    saveUserToken(accessToken, specificUser);
+
                     var authResponse = new AuthenticationResponse(accessToken, refreshToken);
                     new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
                 }
@@ -119,7 +149,8 @@ public class AuthenticationService {
                 twitchUserData.getLogin(),
                 twitchUserData.getEmail(),
                 twitchUserData.getId(),
-                Role.USER
+                Role.USER,
+                UserType.TwitchUser
         );
 
         Optional<TwitchUser> existingUser = twitchUserRepository.findByEmail(twitchUser.getEmail());
@@ -129,12 +160,18 @@ public class AuthenticationService {
             var accessToken = jwtService.generateToken(user);
             var refreshToken = jwtService.generateRefreshToken(user);
 
+            revokeAllUserTokens(user);
+            saveUserToken(accessToken, user);
+
             return new AuthenticationResponse(accessToken, refreshToken);
         } else {
             twitchUserRepository.save(twitchUser);
 
             var accessToken = jwtService.generateToken(twitchUser);
             var refreshToken = jwtService.generateRefreshToken(twitchUser);
+
+            revokeAllUserTokens(twitchUser);
+            saveUserToken(accessToken, twitchUser);
 
             return new AuthenticationResponse(accessToken, refreshToken);
         }

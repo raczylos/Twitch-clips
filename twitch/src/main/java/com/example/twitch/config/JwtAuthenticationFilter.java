@@ -1,5 +1,6 @@
 package com.example.twitch.config;
 
+import com.example.twitch.token.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,14 +21,18 @@ import org.springframework.lang.NonNull;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+
+    private final TokenRepository tokenRepository;
+
+    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService, TokenRepository tokenRepository) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.tokenRepository = tokenRepository;
     }
 
 
-    private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -37,16 +42,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             throws ServletException, IOException {
                 final String authHeader = request.getHeader("Authorization");
-                if (authHeader == null) {
+                if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                     filterChain.doFilter(request, response);
                     return;
                 }
 
-                if (authHeader.startsWith("Bearer ")) {
-                    String jwtToken = authHeader.substring(7);
+                String jwtToken = authHeader.substring(7);
 
-                    handleJwtAuthentication(jwtToken, request);
-                }
+                handleJwtAuthentication(jwtToken, request);
+
 
                 filterChain.doFilter(request, response);
 
@@ -56,11 +60,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void handleJwtAuthentication(String jwtToken, HttpServletRequest request) {
 
 
-        String username = jwtService.extractUsername(jwtToken);
+        String userEmail = jwtService.extractUsername(jwtToken);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (jwtService.isTokenValid(jwtToken, userDetails)) {
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            var isTokenValid = tokenRepository.findByToken(jwtToken)
+                    .map(token -> !token.isExpired() && !token.isRevoked())
+                    .orElse(false);
+
+            if (jwtService.isTokenValid(jwtToken, userDetails) && isTokenValid) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

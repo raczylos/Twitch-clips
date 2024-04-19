@@ -10,38 +10,38 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "twitch_user")
-public class TwitchUser extends User implements UserDetails {
+@Table(name = "normal_user")
+public class NormalUser extends User implements UserDetails {
 
 
 
-    @Column(unique = true)
-    private String twitchId;
+    @Column
+    private String password;
 
 
-    public TwitchUser() {
+    public NormalUser() {
 
     }
-    public TwitchUser(Long id, String login, String email, String twitchId, Role role, UserType userType) {
+
+    public NormalUser(Long id, String login, String email, String password, Role role, UserType userType) {
         setId(id);
         setLogin(login);
         setEmail(email);
-        this.twitchId = twitchId;
+        this.password = password;
         setRole(role);
         setUserType(userType);
+
     }
 
-    public TwitchUser(String login, String email, String twitchId, Role role, UserType userType) {
+    public NormalUser(String login, String email, String password, Role role, UserType userType) {
         setLogin(login);
         setEmail(email);
-        this.twitchId = twitchId;
+        this.password = password;
         setRole(role);
         setUserType(userType);
     }
 
-    public String getTwitchId() {
-        return twitchId;
-    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -49,19 +49,17 @@ public class TwitchUser extends User implements UserDetails {
     }
 
 
-    public void setTwitchId(String twitchId) {
-        this.twitchId = twitchId;
-    }
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
     @Override
     public String getUsername() {
         return getEmail();
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
@@ -82,5 +80,4 @@ public class TwitchUser extends User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

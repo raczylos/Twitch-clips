@@ -36,13 +36,13 @@ public class JwtService {
             Map<String, Objects> extraClaims,
             UserDetails userDetails
     ) {
-        return buildToken(extraClaims, userDetails, 1000 * 60 * 24); // 1 day
+        return buildToken(extraClaims, userDetails, 100 * 60 * 24); // 1 day
     }
 
     public String generateRefreshToken(
             UserDetails userDetails
     ) {
-        return buildToken(new HashMap<>(), userDetails, 10000 * 60 * 24); // 10 days
+        return buildToken(new HashMap<>(), userDetails, 1000 * 60 * 60 * 24 * 10); // 10 days
     }
     public String buildToken(
             Map<String, Objects> extraClaims,

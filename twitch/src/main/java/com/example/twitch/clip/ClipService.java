@@ -38,7 +38,7 @@ public class ClipService {
     }
 
     public List<Clip> getClips() {
-        return clipRepository.findAll();
+        return clipRepository.findClipsByOrderByViewCountDesc();
 
     }
 

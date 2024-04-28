@@ -1,9 +1,7 @@
 package com.example.twitch.auth;
 
 import com.example.twitch.config.JwtService;
-import com.example.twitch.token.Token;
-import com.example.twitch.token.TokenRepository;
-import com.example.twitch.token.TokenType;
+import com.example.twitch.token.*;
 import com.example.twitch.user.UserType;
 import com.example.twitch.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +30,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
+    private final TokenService tokenService;
+
     private final AuthenticationManager authenticationManager;
 
     private final RestTemplate restTemplate;
@@ -46,13 +46,14 @@ public class AuthenticationService {
     public AuthenticationService(UserRepository userRepository,
                                  TokenRepository tokenRepository, TwitchUserRepository twitchUserRepository,
                                  PasswordEncoder passwordEncoder,
-                                 JwtService jwtService, AuthenticationManager authenticationManager
+                                 JwtService jwtService, TokenService tokenService, AuthenticationManager authenticationManager
                                  ) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.twitchUserRepository = twitchUserRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.tokenService = tokenService;
         this.authenticationManager = authenticationManager;
         this.restTemplate =  new RestTemplate();
 
@@ -66,7 +67,8 @@ public class AuthenticationService {
         var savedUser = userRepository.save(user);
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-        saveUserToken(accessToken, savedUser);
+        saveUserToken(accessToken, savedUser, Type.AccessToken);
+        saveUserToken(refreshToken, savedUser, Type.RefreshToken);
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
@@ -85,13 +87,14 @@ public class AuthenticationService {
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
-        saveUserToken(accessToken, user);
+        saveUserToken(accessToken, user, Type.AccessToken);
+        saveUserToken(refreshToken, user, Type.RefreshToken);
 
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
-    private void saveUserToken(String token, User user) {
-        var tokenToSave = new Token(token, TokenType.BEARER, false, false, user);
+    private void saveUserToken(String token, User user, Type type) {
+        var tokenToSave = new Token(token, TokenType.BEARER, false, false, user, type);
         tokenRepository.save(tokenToSave);
     }
 
@@ -113,7 +116,9 @@ public class AuthenticationService {
             HttpServletResponse response
     ) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         if (authHeader == null) {
+            System.out.println("auth header is null");
             return;
         }
         if (authHeader.startsWith("Bearer ")) {
@@ -122,18 +127,21 @@ public class AuthenticationService {
             String username = jwtService.extractUsername(refreshToken);
 
             if (username != null) {
+
                 var user = this.userRepository.findByEmail(username).orElse(null);
                 var twitchUser = this.twitchUserRepository.findByEmail(username).orElse(null);
 
                 var specificUser = (user != null) ? user : twitchUser;
 
-                if (jwtService.isTokenValid(refreshToken, specificUser)) {
+
+                if (jwtService.isTokenValid(refreshToken, specificUser) && tokenService.isTokenInDBValid(refreshToken, Type.RefreshToken)) {
                     var accessToken = jwtService.generateToken(specificUser);
 
                     revokeAllUserTokens(specificUser);
-                    saveUserToken(accessToken, specificUser);
+                    saveUserToken(accessToken, specificUser, Type.AccessToken);
 
                     var authResponse = new AuthenticationResponse(accessToken, refreshToken);
+                    System.out.println(authResponse.getAccessToken());
                     new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
                 }
 
@@ -161,7 +169,8 @@ public class AuthenticationService {
             var refreshToken = jwtService.generateRefreshToken(user);
 
             revokeAllUserTokens(user);
-            saveUserToken(accessToken, user);
+            saveUserToken(accessToken, user, Type.AccessToken);
+            saveUserToken(refreshToken, user, Type.RefreshToken);
 
             return new AuthenticationResponse(accessToken, refreshToken);
         } else {
@@ -171,7 +180,8 @@ public class AuthenticationService {
             var refreshToken = jwtService.generateRefreshToken(twitchUser);
 
             revokeAllUserTokens(twitchUser);
-            saveUserToken(accessToken, twitchUser);
+            saveUserToken(accessToken, twitchUser, Type.AccessToken);
+            saveUserToken(refreshToken, twitchUser, Type.RefreshToken);
 
             return new AuthenticationResponse(accessToken, refreshToken);
         }
@@ -195,12 +205,7 @@ public class AuthenticationService {
                 TwitchUsersResponse.class
         );
 
-
-
-
         var twitchUserResponseData = twitchUserResponse.getBody();
-
-
 
         return twitchUserResponseData;
     }

@@ -11,10 +11,15 @@ public class Token {
     @GeneratedValue
     private Integer id;
 
+    @Column(unique = true)
     private String token;
 
     @Enumerated(EnumType.STRING)
     private TokenType  tokenType;
+
+    @Enumerated(EnumType.STRING)
+    private Type  type;
+
 
     private boolean expired;
 
@@ -29,12 +34,13 @@ public class Token {
     public Token() {
     }
 
-    public Token(String token, TokenType tokenType, boolean expired, boolean revoked, User user) {
+    public Token(String token, TokenType tokenType, boolean expired, boolean revoked, User user, Type type) {
         this.token = token;
         this.tokenType = tokenType;
         this.expired = expired;
         this.revoked = revoked;
         this.user = user;
+        this.type = type;
     }
 
     public String getToken() {
@@ -51,6 +57,14 @@ public class Token {
 
     public void setTokenType(TokenType tokenType) {
         this.tokenType = tokenType;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public boolean isExpired() {

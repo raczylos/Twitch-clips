@@ -11,7 +11,7 @@ import java.util.List;
 public class demo {
 
     @GetMapping()
-    public String getStreamerPopularClips() {
+    public String demo() {
 
         return "demooo";
     }

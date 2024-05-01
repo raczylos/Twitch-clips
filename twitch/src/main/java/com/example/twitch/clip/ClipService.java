@@ -5,6 +5,8 @@ import com.example.twitch.streamer.StreamerService;
 import com.example.twitch.user.TwitchUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -37,10 +39,24 @@ public class ClipService {
         this.streamerService = streamerService;
     }
 
-    public List<Clip> getClips() {
+    public Clip getClip(String clipId) {
+        var clip = clipRepository.findByClipId(clipId);
+        return clip.orElse(null);
+    }
+
+
+    public List<Clip> getAllClips() {
         return clipRepository.findClipsByOrderByViewCountDesc();
 
     }
+
+    public List<Clip> getClipsByPage(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return clipRepository.findClipsByOrderByViewCountDesc(pageable);
+    }
+
+
 
 
     public List<Clip> streamerPopularClips(String token, String streamerId, String startedAt, String endedAt, Integer viewCount) {

@@ -18,11 +18,21 @@ public class ClipController {
         this.clipService = clipService;
     }
 
-    @GetMapping
-    public List<Clip> getClips() {
-        return clipService.getClips();
+    @GetMapping("/all")
+    public List<Clip> getAllClips() {
+        return clipService.getAllClips();
     }
 
+    @GetMapping()
+    public List<Clip> getClipsByPage(@RequestParam int page,
+                               @RequestParam int size) {
+        return clipService.getClipsByPage(page, size);
+    }
+
+    @GetMapping("/{id}")
+    public Clip getClip(@PathVariable("id") String clipId) {
+        return clipService.getClip(clipId);
+    }
 
 //    @GetMapping("/streamerPopularClips")
 //    public ResponseEntity<List<Clip>> getStreamerPopularClips(@RequestParam("accessToken") String accessToken, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {

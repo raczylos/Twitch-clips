@@ -1,11 +1,12 @@
-import ForYouClips from "../Clips/ForYouClips";
+import PopularClips from "../Clips/PopularClips";
 
 function Home() {
     
     
     return (
         <>
-            <ForYouClips />
+
+            <PopularClips />
         </>
     )
     

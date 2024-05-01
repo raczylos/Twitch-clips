@@ -1,30 +1,22 @@
 import  { useState, useEffect } from 'react';
-import useFetch from '../Fetch';
+import useFetch from '../useFetch';
 import TwitchLogin from './TwitchLogin';
 import Cookies from 'js-cookie';
 
 
+
 const Login = () => {
+    const twitchAccessToken = Cookies.get('twitchAccessToken');
+    const twitchRefreshToken = Cookies.get('twitchRefreshToken');
+    const jwtToken = Cookies.get('jwtToken');
 
     const [loginFormData, setLoginFormData] = useState({
         username: '',
         password: '',
-
     });
 
-
-    useEffect(() => {
-        const twitchAccessToken = Cookies.get('twitchAccessToken')
-        const twitchRefreshToken = Cookies.get('twitchRefreshToken')
-        const jwtToken = Cookies.get('jwtToken')
-        if(twitchAccessToken && twitchRefreshToken && jwtToken) {
-            console.log('twitchAccessToken', twitchAccessToken)
-            console.log('twitchRefreshToken', twitchRefreshToken)
-            console.log('jwtToken', jwtToken)
-            
-        }
-        
-    }, []);
+    // const {data, isLoading, error} = useFetch(`http://localhost:8080/api/v1/auth/authenticate?username=${loginFormData.username}&password=${loginFormData.password}`);
+    const { data, isLoading, error, fetchData } = useFetch();
 
     const handleLoginSubmit = async (event) => {
         event.preventDefault();
@@ -32,7 +24,23 @@ const Login = () => {
         console.log('Username:', loginFormData.username);
         console.log('Password:', loginFormData.password);
 
+        fetchData(`http://localhost:8080/api/v1/auth/authenticate?username=${loginFormData.username}&password=${loginFormData.password}`, "POST");
+
+
+
     };
+
+    useEffect(() => {
+
+        if (data) {
+            console.log('Response from server:', data);
+            // redirect to home page
+        }
+        if (error) {
+            console.log('Error from server:', error);
+        }
+
+    }, [data, error]);
     
 
     return (

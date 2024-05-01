@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import useFetch from '../../useFetch';
+
 
 function ClipDetails() {
     const [clipDetails, setClipDetails] = useState()
 
+    const { data, isLoading, error, fetchData } = useFetch(`http://127.0.0.1:5000/favorite_clip_details/${clipId}`);
+
     const clipId = useParams().id;
+
+    useEffect(() => {
+        fetchData(`http://127.0.0.1:5000/favorite_clip_details/${clipId}`)
+    }, []);
   
     useEffect(() => {
-		fetch(`http://127.0.0.1:5000/favorite_clip_details/${clipId}`)
-			.then((response) => response.json())
-			.then((json) => setClipDetails(json))
-			.catch((error) => console.error(error));
-	}, []); 
+        if (data) {
+            console.log(data)
+        }
+    }, [data]);
     
     return(
         <>

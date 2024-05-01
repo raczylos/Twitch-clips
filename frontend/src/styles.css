@@ -99,6 +99,10 @@ body {
 .clip-card .card-title h2 {
     margin: 0;
     margin-bottom: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 10em
     
 }
 

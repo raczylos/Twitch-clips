@@ -25,9 +25,9 @@ public class StreamerController {
     }
 
     @PostMapping("/addAll")
-    public ResponseEntity<List<Streamer>> getTwitchUserInfoByLogin(@RequestParam("accessToken") String accessToken) {
+    public ResponseEntity<List<Streamer>> addAllStreamers(@RequestParam("accessToken") String accessToken) {
 
-        return ResponseEntity.ok(streamerService.addAllStreamer(accessToken));
+        return ResponseEntity.ok(streamerService.addAllStreamers(accessToken));
     }
 
 

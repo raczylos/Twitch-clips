@@ -48,6 +48,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.authenticate(request));
     }
 
+
     @PostMapping("/refresh-token")
     public void refreshToken (
             HttpServletRequest request,
@@ -61,8 +62,7 @@ public class AuthenticationController {
     @PostMapping("/validate/twitch")
     public ResponseEntity<String> validateTwitchToken(@RequestParam("accessToken") String accessToken) {
         try {
-            var response = service.validateTwitchAccessToken(accessToken);
-            return ResponseEntity.ok(response);
+            return service.validateTwitchAccessToken(accessToken);
         } catch (HttpClientErrorException.Unauthorized ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid access token");
         }
@@ -75,7 +75,7 @@ public class AuthenticationController {
 
         var twitchTokens = service.getTwitchTokens(code);
 
-        var tokens = service.authenticateTwitchUser(twitchTokens.getAccessToken());
+        var tokens = service.authenticateTwitchUser(twitchTokens.getAccessToken(), twitchTokens.getRefreshToken());
 
         System.out.println("accessToken " + tokens.getAccessToken());
         System.out.println("refreshToken " + tokens.getRefreshToken());
@@ -93,6 +93,15 @@ public class AuthenticationController {
     @GetMapping("/twitch/tokens")
     public ResponseEntity<TwitchTokensResponse> getTwitchTokens(@RequestParam("code") String code) {
         var tokens = service.getTwitchTokens(code);
+
+        System.out.println(tokens);
+
+        return ResponseEntity.ok(tokens);
+    }
+
+    @PostMapping("/twitch/refresh-token")
+    public ResponseEntity<TwitchTokensResponse> refreshTwitchAccessToken(@RequestParam("twitchRefreshToken") String twitchRefreshToken) {
+        var tokens = service.refreshTwitchAccessToken(twitchRefreshToken);
 
         System.out.println(tokens);
 

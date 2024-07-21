@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -110,6 +111,18 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
+    private void unrevokeToken(String token, Type type) {
+        var userToken = tokenRepository.findByTokenAndType(token, type);
+        if(userToken.isEmpty()) {
+            return;
+        }
+        userToken.get().setExpired(false);
+        userToken.get().setRevoked(false);
+
+        tokenRepository.save(userToken.get());
+
+    }
+
 
     public void refreshToken (
             HttpServletRequest request,
@@ -118,40 +131,60 @@ public class AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null) {
-            System.out.println("auth header is null");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Authorization header is missing");
             return;
         }
-        if (authHeader.startsWith("Bearer ")) {
-            String refreshToken = authHeader.substring(7);
 
-            String username = jwtService.extractUsername(refreshToken);
-
-            if (username != null) {
-
-                var user = this.userRepository.findByEmail(username).orElse(null);
-                var twitchUser = this.twitchUserRepository.findByEmail(username).orElse(null);
-
-                var specificUser = (user != null) ? user : twitchUser;
-
-
-                if (jwtService.isTokenValid(refreshToken, specificUser) && tokenService.isTokenInDBValid(refreshToken, Type.RefreshToken)) {
-                    var accessToken = jwtService.generateToken(specificUser);
-
-                    revokeAllUserTokens(specificUser);
-                    saveUserToken(accessToken, specificUser, Type.AccessToken);
-
-                    var authResponse = new AuthenticationResponse(accessToken, refreshToken);
-                    System.out.println(authResponse.getAccessToken());
-                    new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-                }
-
-            }
+        if (!authHeader.startsWith("Bearer ")) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Authorization header must start with Bearer");
+            return;
         }
+
+        String refreshToken = authHeader.substring(7);
+
+        String username = jwtService.extractUsername(refreshToken);
+
+        if (username == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("username in token not found");
+            return;
+        }
+
+        var user = this.userRepository.findByEmail(username).orElse(null);
+        var twitchUser = this.twitchUserRepository.findByEmail(username).orElse(null);
+
+        var specificUser = (user != null) ? user : twitchUser;
+
+        if (specificUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("User not found");
+            return;
+        }
+
+        if (!jwtService.isTokenValid(refreshToken, specificUser) || !tokenService.isTokenInDBValid(refreshToken, Type.RefreshToken)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid refresh token");
+            return;
+        }
+
+
+        var accessToken = jwtService.generateToken(specificUser);
+
+        revokeAllUserTokens(specificUser);
+        unrevokeToken(refreshToken, Type.RefreshToken);
+
+        saveUserToken(accessToken, specificUser, Type.AccessToken);
+
+        var authResponse = new AuthenticationResponse(accessToken, refreshToken);
+        System.out.println(authResponse.getAccessToken());
+        new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
 
     }
 
-    public AuthenticationResponse authenticateTwitchUser(String twitchAccessToken) {
-        var twitchUserData = getTwitchUserInfo(twitchAccessToken).getData()[0];
+    public AuthenticationResponse authenticateTwitchUser(String twitchAccessToken, String twitchRefreshToken) {
+        var twitchUserData = getTwitchUserInfo(twitchAccessToken, twitchRefreshToken).getData()[0];
 
         TwitchUser twitchUser = new TwitchUser(
                 twitchUserData.getLogin(),
@@ -187,12 +220,22 @@ public class AuthenticationService {
         }
     }
 
-    public TwitchUsersResponse getTwitchUserInfo(String token) {
+    public TwitchUsersResponse getTwitchUserInfo(String twitchAccessToken, String twitchRefreshToken) {
+
+        var response = validateTwitchAccessToken(twitchAccessToken);
+
+//        if(response.getStatusCode() == HttpStatus.UNAUTHORIZED){
+//            var refreshResponse = refreshTwitchAccessToken(twitchRefreshToken);
+//            twitchAccessToken = refreshResponse.getBody().getAccessToken();
+//            twitchRefreshToken = refreshResponse.getBody().getRefreshToken();
+//        }
+
+
 
         String twitchApiUrl = "https://api.twitch.tv/helix/users";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
+        headers.setBearerAuth(twitchAccessToken);
         headers.set("Client-Id", twitchClientId);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchApiUrl);
@@ -210,11 +253,11 @@ public class AuthenticationService {
         return twitchUserResponseData;
     }
 
-    public String validateTwitchAccessToken(String token) {
+    public ResponseEntity<String> validateTwitchAccessToken(String twitchAccessToken) {
         String twitchValidateUrl = "https://id.twitch.tv/oauth2/validate";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
+        headers.setBearerAuth(twitchAccessToken);
 
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -225,7 +268,7 @@ public class AuthenticationService {
                 String.class
         );
 
-        return response.getBody();
+        return response;
     }
 
     public TwitchTokensResponse getTwitchTokens(String code) {
@@ -246,12 +289,29 @@ public class AuthenticationService {
         return tokensResponse;
     }
 
+    public TwitchTokensResponse refreshTwitchAccessToken(String twitchRefreshToken) {
+        String twitchTokenUrl = "https://id.twitch.tv/oauth2/token";
 
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchTokenUrl)
+                .queryParam("client_id", twitchClientId)
+                .queryParam("client_secret", twitchClientSecret)
+                .queryParam("refresh_token", twitchRefreshToken)
+                .queryParam("grant_type", "refresh_token");
 
+        ResponseEntity<TwitchTokensResponse> tokensResponse = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.POST,
+                null,
+                TwitchTokensResponse.class
+        );
 
+//        if(tokensResponse.getStatusCode() == HttpStatus.BAD_REQUEST){
+//            System.out.println(tokensResponse.getBody());
+//            return null;
+//        }
 
-
-
+        return tokensResponse.getBody();
+    }
 
 
 

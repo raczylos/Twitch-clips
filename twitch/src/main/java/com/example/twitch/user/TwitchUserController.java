@@ -20,9 +20,9 @@ public class TwitchUserController {
     }
 
 
-    @GetMapping("/follow")
-    public ResponseEntity<TwitchUserFollowsResponse> getTwitchUserFollows(@RequestParam("accessToken") String accessToken, @RequestParam("login") String login) {
-        return ResponseEntity.ok(twitchUserService.getTwitchUserFollows(accessToken, login));
+    @GetMapping("/follows")
+    public ResponseEntity<TwitchUserFollowsResponse> getTwitchUserFollows(@RequestParam("twitchAccessToken") String accessToken, @RequestParam("twitchRefreshToken") String twitchRefreshToken, @RequestParam("login") String login) {
+        return ResponseEntity.ok(twitchUserService.getTwitchUserFollows(accessToken, twitchRefreshToken, login));
     }
 
     @GetMapping("/info")

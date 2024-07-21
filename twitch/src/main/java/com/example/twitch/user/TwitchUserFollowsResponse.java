@@ -2,7 +2,6 @@ package com.example.twitch.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
 
 public class TwitchUserFollowsResponse {
     @JsonProperty("total")
@@ -30,34 +29,29 @@ public class TwitchUserFollowsResponse {
 
     public static class FollowData {
         @JsonProperty("broadcaster_id")
-        private String broadcaster_id;
+        private String streamerId;
         @JsonProperty("broadcaster_login")
-        private String broadcaster_login;
+        private String streamerLogin;
         @JsonProperty("broadcaster_name")
-        private String broadcaster_name;
+        private String streamerName;
         @JsonProperty("followed_at")
-        private String followed_at;
+        private String followedAt;
 
-        public String getBroadcaster_id() {
-            return broadcaster_id;
+        public String getStreamerId() {
+            return streamerId;
         }
 
-
-        public String getBroadcaster_login() {
-            return broadcaster_login;
+        public String getStreamerLogin() {
+            return streamerLogin;
         }
 
-
-
-        public String getBroadcaster_name() {
-            return broadcaster_name;
+        public String getStreamerName() {
+            return streamerName;
         }
 
-
-        public String getFollowed_at() {
-            return followed_at;
+        public String getFollowedAt() {
+            return followedAt;
         }
-
     }
 
     public static class Pagination {
@@ -70,3 +64,4 @@ public class TwitchUserFollowsResponse {
         }
     }
 }
+

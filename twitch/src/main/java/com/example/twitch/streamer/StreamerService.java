@@ -4,6 +4,8 @@ import com.example.twitch.user.TwitchUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.example.twitch.streamer.streamerException.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,21 +33,28 @@ public class StreamerService {
         return streamer.get();
     }
 
+    public Streamer getStreamer(Long streamerId) {
+        var streamer = streamerRepository.findById(streamerId);
+        if(streamer.isEmpty()) {
+            System.out.println("Streamer doesn't exist in database");
+            return null;
+        }
+
+        return streamer.get();
+    }
+
     public Streamer addStreamer(String token, String login) {
 
         var existingStreamer = streamerRepository.findByLogin(login);
 
         if(existingStreamer.isPresent()){
-            System.out.println("Streamer already exists in database");
-            return null;
+            throw new StreamerAlreadyExistsException(String.format("Streamer already exists in database: %s", login));
         }
 
         var data = twitchUserService.getTwitchUserInfoByLogin(token, login).getData();
 
         if(data.length == 0) {
-            System.out.println("Invalid login of streamer");
-            System.out.println(login);
-            return null;
+            throw new InvalidStreamerLoginException(String.format("Invalid login of streamer: %s", login));
         }
 
         var streamer = new Streamer(data[0].getLogin(), data[0].getDisplayName(), data[0].getId(), data[0].getProfileImageUrl());
@@ -55,7 +64,7 @@ public class StreamerService {
 
     }
 
-    public List<Streamer> addAllStreamer(String token) {
+    public List<Streamer> addAllStreamers(String token) {
 
         List<Streamer>  streamerList = new ArrayList<>();
         for(var streamerLogin : StreamerList.values()) {

@@ -34,6 +34,10 @@ public class Streamer {
         this.profileImageUrl = profileImageUrl;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getLogin() {
         return login;
     }

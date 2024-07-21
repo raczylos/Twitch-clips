@@ -1,6 +1,8 @@
 package com.example.twitch.clip;
 
+import com.example.twitch.follower.FollowerService;
 import com.example.twitch.streamer.StreamerList;
+import com.example.twitch.streamer.StreamerRepository;
 import com.example.twitch.streamer.StreamerService;
 import com.example.twitch.user.TwitchUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,16 +29,22 @@ public class ClipService {
 
     private final StreamerService streamerService;
 
+    private final FollowerService followerService;
+
+    private final StreamerRepository streamerRepository;
+
 
 
     @Value("${twitch-client-id}")
     private String twitchClientId;
 
     @Autowired
-    public ClipService(ClipRepository clipRepository, TwitchUserService twitchUserService, StreamerService streamerService) {
+    public ClipService(ClipRepository clipRepository, TwitchUserService twitchUserService, StreamerService streamerService, FollowerService followerService, StreamerRepository streamerRepository) {
         this.clipRepository = clipRepository;
         this.twitchUserService = twitchUserService;
         this.streamerService = streamerService;
+        this.followerService = followerService;
+        this.streamerRepository = streamerRepository;
     }
 
     public Clip getClip(String clipId) {
@@ -59,7 +67,7 @@ public class ClipService {
 
 
 
-    public List<Clip> streamerPopularClips(String token, String streamerId, String startedAt, String endedAt, Integer viewCount) {
+    public List<Clip> streamerPopularClips(String token, String streamerTwitchId, String startedAt, String endedAt, Integer viewCount) {
 
         String twitchApiUrl = "https://api.twitch.tv/helix/clips";
 
@@ -68,7 +76,7 @@ public class ClipService {
         headers.set("Client-Id", twitchClientId);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchApiUrl)
-                .queryParam("broadcaster_id", streamerId)
+                .queryParam("broadcaster_id", streamerTwitchId)
                 .queryParam("started_at", startedAt)
                 .queryParam("ended_at", endedAt);
 
@@ -111,13 +119,34 @@ public class ClipService {
 
     public List<Clip> followedStreamersClips(String token, String login, String startedAt, String endedAt) {
 
-        var follows = twitchUserService.getTwitchUserFollows(token, login);
-        List<Clip> clips = new ArrayList<>();
-        System.out.println(follows);
+//        var follows = twitchUserService.getTwitchUserFollows(token, login);
+//
+//        List<Clip> clips = new ArrayList<>();
+//
+//
+//        for(var followData: follows.getData()) {
+//            System.out.println(followData.getBroadcaster_login());
+////            var streamerId = streamerService.getStreamer(streamer.toString()).getTwitchId();
+//            var streamerClips = streamerPopularClips(token, followData.getStreamerId(), startedAt, endedAt, 200);
+//            clips.addAll(streamerClips);
+//        }
+//
+//        System.out.println(clips);
+//        return clips;
 
-        for(var followData: follows.getData()) {
-            System.out.println(followData.getBroadcaster_login());
-            var streamerClips = streamerPopularClips(token, followData.getBroadcaster_login(), startedAt, endedAt, 200);
+        var userId = twitchUserService.getTwitchUserByLogin(login).get().getId();
+        var follows = followerService.getFollowers(userId);
+
+        List<Clip> clips = new ArrayList<>();
+
+        if(follows == null){
+            System.out.println("User doesnt have follows");
+            return null;
+        }
+
+        for(var follow: follows) {
+            var streamerTwitchId = streamerRepository.findById(follow.getStreamerId()).get().getTwitchId();
+            var streamerClips = streamerPopularClips(token, streamerTwitchId, startedAt, endedAt, 200);
             clips.addAll(streamerClips);
         }
 

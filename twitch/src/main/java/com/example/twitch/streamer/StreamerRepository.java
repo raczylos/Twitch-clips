@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface StreamerRepository extends JpaRepository<Streamer, Integer> {
     Optional<Streamer> findByLogin(String login);
+    Optional<Streamer> findById(Long streamerId);
 }

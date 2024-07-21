@@ -40,8 +40,15 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
-                    auth.requestMatchers("/api/v1/auth/**", "/error").permitAll()
-                                .anyRequest().authenticated())
+                    auth.requestMatchers("/api/v1/auth/**",
+                                    "/error",
+                                    "/swagger-ui.html/**",
+                                    "/webjars/springfox-swagger-ui/**",
+                                    "/swagger-resources/**",
+                                    "/swagger-ui/**",
+                                    "/v3/api-docs/**",
+                                    "/v3/api-docs.yaml").
+                            permitAll().anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -52,6 +59,7 @@ public class SecurityConfig {
                                 .logoutSuccessHandler(((request, response, authentication) ->
                                         SecurityContextHolder.clearContext()))
                 )
+                .exceptionHandling(Customizer.withDefaults());
 
 //                .formLogin(Customizer.withDefaults())
 //                .oauth2Login(oauth2 ->

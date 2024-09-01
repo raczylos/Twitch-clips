@@ -4,8 +4,6 @@ import com.example.twitch.config.JwtService;
 import com.example.twitch.token.*;
 import com.example.twitch.user.UserType;
 import com.example.twitch.user.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -13,11 +11,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.util.Optional;
 
 
@@ -124,63 +120,57 @@ public class AuthenticationService {
     }
 
 
-    public void refreshToken (
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (authHeader == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Authorization header is missing");
-            return;
+    public ResponseEntity<AuthenticationResponse> refreshToken(String bearerToken) {
+        if (bearerToken == null) {
+            return ResponseEntity
+                    .badRequest()
+                    .header("Error", "Authorization header is missing")
+                    .build();
         }
 
-        if (!authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Authorization header must start with Bearer");
-            return;
+        if (!bearerToken.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .badRequest()
+                    .header("Error", "Authorization header must start with Bearer")
+                    .build();
         }
 
-        String refreshToken = authHeader.substring(7);
-
+        String refreshToken = bearerToken.substring(7);
         String username = jwtService.extractUsername(refreshToken);
 
+
         if (username == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("username in token not found");
-            return;
+            return ResponseEntity
+                    .status(HttpServletResponse.SC_UNAUTHORIZED)
+                    .header("Error", "Username in token not found")
+                    .build();
         }
 
         var user = this.userRepository.findByEmail(username).orElse(null);
         var twitchUser = this.twitchUserRepository.findByEmail(username).orElse(null);
-
         var specificUser = (user != null) ? user : twitchUser;
 
         if (specificUser == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("User not found");
-            return;
+            return ResponseEntity
+                    .status(HttpServletResponse.SC_UNAUTHORIZED)
+                    .header("Error", "User not found")
+                    .build();
         }
 
         if (!jwtService.isTokenValid(refreshToken, specificUser) || !tokenService.isTokenInDBValid(refreshToken, Type.RefreshToken)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid refresh token");
-            return;
+            return ResponseEntity
+                    .status(HttpServletResponse.SC_UNAUTHORIZED)
+                    .header("Error", "Invalid refresh token")
+                    .build();
         }
 
-
         var accessToken = jwtService.generateToken(specificUser);
-
         revokeAllUserTokens(specificUser);
         unrevokeToken(refreshToken, Type.RefreshToken);
-
         saveUserToken(accessToken, specificUser, Type.AccessToken);
 
         var authResponse = new AuthenticationResponse(accessToken, refreshToken);
-        System.out.println(authResponse.getAccessToken());
-        new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-
+        return ResponseEntity.ok(authResponse);
     }
 
     public AuthenticationResponse authenticateTwitchUser(String twitchAccessToken, String twitchRefreshToken) {

@@ -17,9 +17,12 @@ public class TwitchUsersResponse {
         @JsonProperty("login")
         private String login;
         @JsonProperty("display_name")
-        private String display_name;
+        private String displayName;
         @JsonProperty("email")
         private String email;
+
+        @JsonProperty("profile_image_url")
+        private String profileImageUrl;
 
 
         public String getId() {
@@ -33,12 +36,16 @@ public class TwitchUsersResponse {
 
 
         public String getDisplayName() {
-            return display_name;
+            return displayName;
         }
 
 
         public String getEmail() {
             return email;
+        }
+
+        public String getProfileImageUrl() {
+            return profileImageUrl;
         }
     }
 }

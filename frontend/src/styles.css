@@ -1,27 +1,24 @@
 
 body {
     margin: 0;
-    /* background-color: #121212; */
-    background-color: #071108;
+    background-color: #070a11;
     color: white;
 }
 
-.main-container {
-    /* margin-left: 5%; 
-    margin-right: 5%; */
+#root {
+    width: 100%;
+}
 
-    margin-left: 5%; 
-    margin-right: 5%;
-    
+.main-container {
+    margin-left: 10%; 
+    margin-right: 10%;
 }
 
 .navbar {
     display: flex;
     justify-content: space-between;
     background-color: #111111;
-    /* background-color: #564787; */
-    /* background-color: #564787; */
-    align-items: center;
+    width: 100%;
     color: white;
     gap: 2rem;
     padding-left: 1rem;
@@ -37,6 +34,7 @@ body {
     list-style: none;
     display: flex;
     gap: 1rem;
+    align-items: center;
 }
 
 .navbar a {
@@ -50,16 +48,7 @@ body {
     
     justify-content: space-between;
     padding: 0;
-
-   
-    
-    &::after {
-        content: "";
-        width: 522px; /* card width*/
-    }
 }
-
-
 
 
 
@@ -99,15 +88,23 @@ body {
 .clip-card .card-title h2 {
     margin: 0;
     margin-bottom: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     
+}
+
+.clip-card .card-content {
+    width: 300px;
+    height: 170px;
 }
 
 .clip-card .card-content img {
     max-width: 300px;
 }
 
-.clip-card .card-action {
-    
+.clip-card .card-action img {
+    max-width: 40px;
 }
 
 .clip-list li {
@@ -141,11 +138,4 @@ body {
     
 }
 
-.main-container .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* height: 100vh; */
-    margin-left: 0;
-    margin-right: 0;
-}
+

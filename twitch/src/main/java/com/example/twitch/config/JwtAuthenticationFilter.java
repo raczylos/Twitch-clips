@@ -1,5 +1,8 @@
 package com.example.twitch.config;
 
+import com.example.twitch.token.TokenService;
+import com.example.twitch.token.Type;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,35 +20,43 @@ import java.io.IOException;
 import org.springframework.lang.NonNull;
 
 @Component
-
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-    }
-
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+
+
+    private final TokenService tokenService;
+
+
+    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService, TokenService tokenService) {
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+        this.tokenService = tokenService;
+    }
+
+
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
-
             throws ServletException, IOException {
                 final String authHeader = request.getHeader("Authorization");
-                if (authHeader == null) {
+                if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                     filterChain.doFilter(request, response);
                     return;
                 }
 
-                if (authHeader.startsWith("Bearer ")) {
-                    String jwtToken = authHeader.substring(7);
+                String jwtToken = authHeader.substring(7);
 
+                try {
                     handleJwtAuthentication(jwtToken, request);
+                } catch(ExpiredJwtException e) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("JWT expired");
+                    return;
                 }
 
                 filterChain.doFilter(request, response);
@@ -56,11 +67,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void handleJwtAuthentication(String jwtToken, HttpServletRequest request) {
 
 
-        String username = jwtService.extractUsername(jwtToken);
+        String userEmail = jwtService.extractUsername(jwtToken);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (jwtService.isTokenValid(jwtToken, userDetails)) {
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+
+            if (jwtService.isTokenValid(jwtToken, userDetails) && tokenService.isTokenInDBValid(jwtToken, Type.AccessToken)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -72,6 +84,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-
-
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return request.getServletPath().startsWith("/api/v1/auth");
+    }
 }

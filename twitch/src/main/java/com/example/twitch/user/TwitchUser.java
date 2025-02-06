@@ -11,33 +11,32 @@ import java.util.List;
 
 @Entity
 @Table(name = "twitch_user")
-public class TwitchUser implements UserDetails {
+public class TwitchUser extends User implements UserDetails {
 
-    @Id
-    @GeneratedValue
-    private Long id;
-    private String username;
-    private String email;
+
+
+    @Column(unique = true)
     private String twitchId;
-    @Enumerated(EnumType.STRING)
-    private Role role;
+
 
     public TwitchUser() {
 
     }
-    public TwitchUser(Long id, String username, String email, String twitchId, Role role) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
+    public TwitchUser(Long id, String login, String email, String twitchId, Role role, UserType userType) {
+        setId(id);
+        setLogin(login);
+        setEmail(email);
         this.twitchId = twitchId;
-        this.role = role;
+        setRole(role);
+        setUserType(userType);
     }
 
-    public TwitchUser(String username, String email, String twitchId, Role role) {
-        this.username = username;
-        this.email = email;
+    public TwitchUser(String login, String email, String twitchId, Role role, UserType userType) {
+        setLogin(login);
+        setEmail(email);
         this.twitchId = twitchId;
-        this.role = role;
+        setRole(role);
+        setUserType(userType);
     }
 
     public String getTwitchId() {
@@ -46,20 +45,9 @@ public class TwitchUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority(getRole().name()));
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public void setTwitchId(String twitchId) {
         this.twitchId = twitchId;
@@ -72,7 +60,7 @@ public class TwitchUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return getEmail();
     }
 
     @Override

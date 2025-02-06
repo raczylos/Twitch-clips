@@ -1,19 +1,15 @@
 package com.example.twitch.auth;
 
-import com.example.twitch.user.User;
-import com.example.twitch.user.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.Optional;
 
-@CrossOrigin(origins = "http://127.0.0.1:5173")
+
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
@@ -38,25 +34,37 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.authenticate(request));
     }
 
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthenticationResponse> refreshToken(
+            @RequestParam(value = "refreshToken") String refreshToken
+    ) {
+        return service.refreshToken(refreshToken);
+    }
 
-    @GetMapping("/validate/twitch")
+    @PostMapping("/validate/twitch")
     public ResponseEntity<String> validateTwitchToken(@RequestParam("accessToken") String accessToken) {
-        return ResponseEntity.ok(service.validateTwitchAccessToken(accessToken));
+        try {
+            ResponseEntity<String> response = service.validateTwitchAccessToken(accessToken);
+            return new ResponseEntity<>(response.getBody(), response.getStatusCode());
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid access token");
+        }
+
     }
 
 
     @GetMapping("/login/oauth2/code/twitch")
     public RedirectView loginByTwitch(@RequestParam("code") String code) {
 
-        var tokens = service.getTwitchTokens(code);
+        var twitchTokens = service.getTwitchTokens(code);
 
-        var jwtToken = service.authenticateTwitchUser(tokens.getAccessToken()).getToken();
+        var tokens = service.authenticateTwitchUser(twitchTokens.getAccessToken(), twitchTokens.getRefreshToken());
 
-        System.out.println("jwtToken " + jwtToken);
+        System.out.println("accessToken " + tokens.getAccessToken());
+        System.out.println("refreshToken " + tokens.getRefreshToken());
 
-
-        String redirectUrl = "http://127.0.0.1:5173/login?twitchAccessToken=" + tokens.getAccessToken() +
-                "&twitchRefreshToken=" + tokens.getRefreshToken() + "&jwtToken=" + jwtToken;
+        String redirectUrl = "http://127.0.0.1:5173/login?twitchAccessToken=" + twitchTokens.getAccessToken() +
+                "&twitchRefreshToken=" + twitchTokens.getRefreshToken() + "&accessToken=" + tokens.getAccessToken() + "&refreshToken=" + tokens.getRefreshToken();
 
         RedirectView redirectView = new RedirectView();
         redirectView.setUrl(redirectUrl);
@@ -68,6 +76,15 @@ public class AuthenticationController {
     @GetMapping("/twitch/tokens")
     public ResponseEntity<TwitchTokensResponse> getTwitchTokens(@RequestParam("code") String code) {
         var tokens = service.getTwitchTokens(code);
+
+        System.out.println(tokens);
+
+        return ResponseEntity.ok(tokens);
+    }
+
+    @PostMapping("/twitch/refresh-token")
+    public ResponseEntity<TwitchTokensResponse> refreshTwitchAccessToken(@RequestParam("twitchRefreshToken") String twitchRefreshToken) {
+        var tokens = service.refreshTwitchAccessToken(twitchRefreshToken);
 
         System.out.println(tokens);
 

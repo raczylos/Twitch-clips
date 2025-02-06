@@ -6,7 +6,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +35,7 @@ public class JwtService {
             Map<String, Objects> extraClaims,
             UserDetails userDetails
     ) {
-//        return buildToken(extraClaims, userDetails, 1000 * 60 * 60 * 24); // 1 day
-        return buildToken(extraClaims, userDetails, 1000);
+        return buildToken(extraClaims, userDetails, 1000 * 60 * 60 * 24); // 1 day
     }
 
     public String generateRefreshToken(

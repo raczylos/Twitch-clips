@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                     auth.requestMatchers("/api/v1/auth/**",
+                                    "/api/v1/twitch/clips/popular",
                                     "/error",
                                     "/swagger-ui.html/**",
                                     "/webjars/springfox-swagger-ui/**",
@@ -60,20 +61,13 @@ public class SecurityConfig {
                                         SecurityContextHolder.clearContext()))
                 )
                 .exceptionHandling(Customizer.withDefaults());
-
-//                .formLogin(Customizer.withDefaults())
-//                .oauth2Login(oauth2 ->
-//                        oauth2.successHandler(oAuth2LoginSuccessHandler)
-//
-//                );
-        ;
         return httpSecurity.build();
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5173"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://127.0.0.1:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST"));
         configuration.addAllowedHeader("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

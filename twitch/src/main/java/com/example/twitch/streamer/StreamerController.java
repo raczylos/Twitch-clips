@@ -1,6 +1,5 @@
 package com.example.twitch.streamer;
 
-import com.example.twitch.auth.TwitchUsersResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +16,11 @@ public class StreamerController {
     }
 
 
+    @GetMapping("/{broadcasterName}")
+    public ResponseEntity<Streamer> getStreamer(@PathVariable("broadcasterName") String name) {
+
+        return ResponseEntity.ok(streamerService.getStreamer(name));
+    }
 
     @PostMapping("/add")
     public ResponseEntity<Streamer> addStreamer(@RequestParam("accessToken") String accessToken, @RequestParam("login") String login) {

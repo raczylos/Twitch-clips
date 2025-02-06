@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.springframework.lang.NonNull;
 
 @Component
-
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -87,8 +86,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        System.out.println(request.getServletPath());
-        System.out.println(request.getServletPath().startsWith("/api/v1/auth"));
         return request.getServletPath().startsWith("/api/v1/auth");
     }
 }

@@ -1,6 +1,6 @@
 package com.example.twitch.streamer;
 
-public class streamerException {
+public class StreamerException {
     public static class StreamerAlreadyExistsException extends RuntimeException {
         public StreamerAlreadyExistsException(String message) {
             super(message);

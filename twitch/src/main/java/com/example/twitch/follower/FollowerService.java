@@ -2,7 +2,7 @@ package com.example.twitch.follower;
 
 import com.example.twitch.streamer.Streamer;
 import com.example.twitch.streamer.StreamerService;
-import com.example.twitch.streamer.streamerException.*;
+import com.example.twitch.streamer.StreamerException.*;
 import com.example.twitch.user.TwitchUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

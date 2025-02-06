@@ -4,7 +4,7 @@ import com.example.twitch.user.TwitchUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.example.twitch.streamer.streamerException.*;
+import static com.example.twitch.streamer.StreamerException.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +33,8 @@ public class StreamerService {
         return streamer.get();
     }
 
-    public Streamer getStreamer(Long streamerId) {
-        var streamer = streamerRepository.findById(streamerId);
+    public Streamer getStreamerByStreamerId(String streamerId) {
+        var streamer = streamerRepository.findByTwitchId(streamerId);
         if(streamer.isEmpty()) {
             System.out.println("Streamer doesn't exist in database");
             return null;
@@ -57,7 +57,7 @@ public class StreamerService {
             throw new InvalidStreamerLoginException(String.format("Invalid login of streamer: %s", login));
         }
 
-        var streamer = new Streamer(data[0].getLogin(), data[0].getDisplayName(), data[0].getId(), data[0].getProfileImageUrl());
+        var streamer = new Streamer(data[0].getLogin(), data[0].getDisplayName(), data[0].getId(), data[0].getProfileImageUrl(), null);
         streamerRepository.save(streamer);
 
         return streamer;

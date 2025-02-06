@@ -1,8 +1,8 @@
 package com.example.twitch.auth;
 
 public class AuthenticationResponse {
-    private String accessToken;
-    private String refreshToken;
+    private final String accessToken;
+    private final String refreshToken;
 
     public AuthenticationResponse(String accessToken, String refreshToken) {
         this.accessToken = accessToken;

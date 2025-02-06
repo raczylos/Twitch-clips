@@ -44,7 +44,8 @@ public class AuthenticationController {
     @PostMapping("/validate/twitch")
     public ResponseEntity<String> validateTwitchToken(@RequestParam("accessToken") String accessToken) {
         try {
-            return service.validateTwitchAccessToken(accessToken);
+            ResponseEntity<String> response = service.validateTwitchAccessToken(accessToken);
+            return new ResponseEntity<>(response.getBody(), response.getStatusCode());
         } catch (HttpClientErrorException.Unauthorized ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid access token");
         }

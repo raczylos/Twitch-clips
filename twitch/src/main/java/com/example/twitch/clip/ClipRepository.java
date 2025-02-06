@@ -14,4 +14,8 @@ public interface ClipRepository extends JpaRepository<Clip, Long> {
     List<Clip> findClipsByOrderByViewCountDesc();
 
     List<Clip> findClipsByOrderByViewCountDesc(Pageable pageable);
+
+    List<Clip> findClipsByBroadcasterIdAndViewCountGreaterThanAndCreatedAtBetweenOrderByViewCountDesc(String StreamerId, Integer viewCount, String startedAt, String endedAt);
+
+    List<Clip> findClipsByViewCountGreaterThanAndCreatedAtBetweenOrderByViewCountDesc(Integer viewCount, String startedAt, String endedAt);
 }

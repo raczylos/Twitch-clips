@@ -2,21 +2,15 @@ package com.example.twitch.clip;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
 
 public class TwitchClipsResponse {
 
     @JsonProperty("data")
     private ClipData[] data;
-//    private Pagination pagination;
 
     public ClipData[] getData() {
         return data;
     }
-
-//    public Pagination getPagination() {
-//        return pagination;
-//    }
 
     public static class ClipData {
         @JsonProperty("id")
@@ -139,19 +133,5 @@ public class TwitchClipsResponse {
         }
     }
 
-//    public static class Pagination {
-//        private String cursor;
-//
-//        public String getCursor() {
-//            return cursor;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return "Pagination{" +
-//                    "cursor='" + cursor + '\'' +
-//                    '}';
-//        }
-//    }
 
 }

@@ -1,19 +1,17 @@
-const flowbite = require("flowbite-react/tailwind");
+import { content as _content, plugin } from "flowbite-react/tailwind";
 
 /** @type {import('tailwindcss').Config} */
 
-module.exports =  {
-  content: [
+export const content = [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "./node_modules/tailwind-datepicker-react/dist/**/*.js",
-    flowbite.content(),
-  ],
-  theme: {
+    _content(),
+];
+export const theme = {
     extend: {},
-  },
-  plugins: [
-    flowbite.plugin()
-  ],
-}
+};
+export const plugins = [
+    plugin()
+];
 

@@ -20,7 +20,7 @@ const useFetch = () => {
         setError(null);
 
         const accessToken = Cookies.get('accessToken');
-        let config: configType = {
+        const config: configType = {
             method: method,
             headers: {
                 Authorization: ''

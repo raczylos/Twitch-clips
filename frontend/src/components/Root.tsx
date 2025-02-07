@@ -5,17 +5,17 @@ import React from 'react';
 
 export default function Root() {
 
-	const location = useLocation();
+    const location = useLocation();
     const isHomePage = location.pathname === '/';
 
-	return (
-		<>
-			<Navbar />
+    return (
+        <>
+            <Navbar />
             <div className="main-container">
-				{isHomePage && <Home />}
+                {isHomePage && <Home />}
                 <Outlet />
             </div>
 			
-		</>
-	);
+        </>
+    );
 }

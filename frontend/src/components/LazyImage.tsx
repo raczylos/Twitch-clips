@@ -9,29 +9,29 @@ type Props = {
 };
 
 const LazyImage = ({ src, alt, className = "", placeholderSrc }: Props) => {
-  const [loaded, setLoaded] = useState(false);
+    const [loaded, setLoaded] = useState(false);
 
-  return (
+    return (
     
-    <div className={`relative overflow-hidden ${className}`}>
+        <div className={`relative overflow-hidden ${className}`}>
         
-      {!loaded && (
-        <img
-          src={placeholderSrc || src}
-          alt="Loading placeholder"
-          className="absolute top-0 left-0 w-full h-full blur-md"
-        />
-      )}
+            {!loaded && (
+                <img
+                    src={placeholderSrc || src}
+                    alt="Loading placeholder"
+                    className="absolute top-0 left-0 w-full h-full blur-md"
+                />
+            )}
 
 
-      <img
-        src={src}
-        alt={alt}
-        className={`transition-opacity duration-500 ease-in-out ${loaded ? "opacity-100" : "opacity-0"}`}
-        onLoad={() => setLoaded(true)}
-      />
-    </div>
-  );
+            <img
+                src={src}
+                alt={alt}
+                className={`transition-opacity duration-500 ease-in-out ${loaded ? "opacity-100" : "opacity-0"}`}
+                onLoad={() => setLoaded(true)}
+            />
+        </div>
+    );
 };
 
 export default LazyImage;

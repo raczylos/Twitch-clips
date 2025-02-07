@@ -10,9 +10,6 @@ const Logout = () => {
 
     const onLogoutClick = async() => {
         await fetchData(`http://localhost:8080/api/v1/auth/logout`, 'POST');
-        console.log("lolz", status)
-
-1
     };
 
     useEffect(() => {

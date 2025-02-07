@@ -4,9 +4,9 @@ import React from 'react';
 
 const SpinnerCircular = () => {
     return (
-    <Box sx={{ width: '100%'}}>
-        <CircularProgress />
-    </Box>
+        <Box sx={{ width: '100%'}}>
+            <CircularProgress />
+        </Box>
     );
 };
 

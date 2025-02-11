@@ -3,11 +3,11 @@ import React from 'react';
 
 function Home() {
     
-    return (
-        <>
-            <PopularClips />
-        </>
-    )
+	return (
+		<>
+			<PopularClips />
+		</>
+	)
     
 }
 

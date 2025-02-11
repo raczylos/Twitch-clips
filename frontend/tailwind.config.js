@@ -3,15 +3,15 @@ import { content as _content, plugin } from "flowbite-react/tailwind";
 /** @type {import('tailwindcss').Config} */
 
 export const content = [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./node_modules/tailwind-datepicker-react/dist/**/*.js",
-    _content(),
+	"./index.html",
+	"./src/**/*.{js,ts,jsx,tsx}",
+	"./node_modules/tailwind-datepicker-react/dist/**/*.js",
+	_content(),
 ];
 export const theme = {
-    extend: {},
+	extend: {},
 };
 export const plugins = [
-    plugin()
+	plugin()
 ];
 

@@ -5,37 +5,37 @@ import  { useState, useEffect } from 'react';
 import React from 'react';
 
 export default function Navbar() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
+	const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-    useEffect(() => {
-        if(Cookies.get("accessToken")){
-            setIsLoggedIn(true)
-        } else {
-            setIsLoggedIn(false)
-        }
-    }, [])
+	useEffect(() => {
+		if(Cookies.get("accessToken")){
+			setIsLoggedIn(true)
+		} else {
+			setIsLoggedIn(false)
+		}
+	}, [])
 
-    return ( 
-        <nav className="navbar">
-            <Link to="/" className="site-title">Site title</Link>
-            <ul>
-                {!isLoggedIn && (
-                    <li>
-                        <Link to="/login">Login</Link>
-                    </li>
-                )}
+	return ( 
+		<nav className="navbar">
+			<Link to="/" className="site-title">Site title</Link>
+			<ul>
+				{!isLoggedIn && (
+					<li>
+						<Link to="/login">Login</Link>
+					</li>
+				)}
 
-                {isLoggedIn && (
-                    <li>    
-                        <Link to="/popular">Popular</Link>
-                    </li>
-                )}
-                {isLoggedIn && (
-                    <li>    
-                        <Logout />
-                    </li>
-                )}
-            </ul>
-        </nav>
-    )
+				{isLoggedIn && (
+					<li>    
+						<Link to="/popular">Popular</Link>
+					</li>
+				)}
+				{isLoggedIn && (
+					<li>    
+						<Logout />
+					</li>
+				)}
+			</ul>
+		</nav>
+	)
 }

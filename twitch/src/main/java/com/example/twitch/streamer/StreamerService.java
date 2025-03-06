@@ -1,6 +1,8 @@
 package com.example.twitch.streamer;
 
 import com.example.twitch.user.TwitchUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ public class StreamerService {
 
     private final TwitchUserService twitchUserService;
 
+    private static final Logger logger = LoggerFactory.getLogger(StreamerService.class);
 
     @Autowired
     public StreamerService(StreamerRepository streamerRepository, TwitchUserService twitchUserService) {
@@ -65,14 +68,20 @@ public class StreamerService {
     }
 
     public List<Streamer> addAllStreamers(String token) {
-
-        List<Streamer>  streamerList = new ArrayList<>();
-        for(var streamerLogin : StreamerList.values()) {
-            if(streamerLogin != null) {
-                var streamer = addStreamer(token, streamerLogin.toString());
-                streamerList.add(streamer);
+        List<Streamer> streamerList = new ArrayList<>();
+        for (var streamerLogin : StreamerList.values()) {
+            if (streamerLogin != null) {
+                try {
+                    var streamer = addStreamer(token, streamerLogin.toString());
+                    streamerList.add(streamer);
+                } catch (StreamerAlreadyExistsException e) {
+                    logger.error("Streamer already exists: {}", streamerLogin);
+                } catch (InvalidStreamerLoginException e) {
+                    logger.error("Invalid streamer login: {}", streamerLogin);
+                } catch (Exception e) {
+                    logger.error("Unexpected error adding streamer {}: {}", streamerLogin, e.getMessage());
+                }
             }
-
         }
 
         return streamerList;

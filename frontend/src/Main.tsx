@@ -35,7 +35,12 @@ function Main() {
 export default Main;
 
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-	<Main />
-);
+const rootElement = document.getElementById('root');
+if (rootElement) {
+	ReactDOM.createRoot(rootElement).render(
+		<Main />
+	);
+} else {
+	console.error("Root element not found");
+}
 

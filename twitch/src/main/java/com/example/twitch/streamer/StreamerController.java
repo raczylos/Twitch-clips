@@ -30,7 +30,6 @@ public class StreamerController {
 
     @PostMapping("/addAll")
     public ResponseEntity<List<Streamer>> addAllStreamers(@RequestParam("accessToken") String accessToken) {
-
         return ResponseEntity.ok(streamerService.addAllStreamers(accessToken));
     }
 

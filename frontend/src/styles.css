@@ -64,7 +64,7 @@ body {
 
 .clip-card:hover {
     border: 1px solid transparent;
-    background: linear-gradient(#071108,#071108)padding-box, linear-gradient(var(--angle),#070707,#687aff) border-box; 
+    background: linear-gradient(#070a11,#070a11)padding-box, linear-gradient(var(--angle),#070707,#687aff) border-box; 
    
    
     animation: 2s rotate linear infinite;

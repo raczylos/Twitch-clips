@@ -1,28 +1,37 @@
 package com.example.twitch.user;
 
 
-import jakarta.persistence.*;
+import com.example.twitch.follower.Follower;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "twitch_user")
-public class TwitchUser extends User implements UserDetails {
+@Table(name = "TWITCH_USER")
+public class TwitchUser extends AbstractUser implements UserDetails {
 
 
-
-    @Column(unique = true)
+    @Column(name = "twitch_id", unique = true, nullable = false)
     private String twitchId;
+
+    @OneToMany(mappedBy = "twitchUser", fetch = FetchType.LAZY)
+    private List<Follower> followingStreamers = new ArrayList<>();
 
 
     public TwitchUser() {
 
     }
-    public TwitchUser(Long id, String login, String email, String twitchId, Role role, UserType userType) {
+
+    public TwitchUser(Integer id, String login, String email, String twitchId, Role role, UserType userType) {
         setId(id);
         setLogin(login);
         setEmail(email);
@@ -43,14 +52,13 @@ public class TwitchUser extends User implements UserDetails {
         return twitchId;
     }
 
+    public void setTwitchId(String twitchId) {
+        this.twitchId = twitchId;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(getRole().name()));
-    }
-
-
-    public void setTwitchId(String twitchId) {
-        this.twitchId = twitchId;
     }
 
     @Override
@@ -83,4 +91,11 @@ public class TwitchUser extends User implements UserDetails {
         return true;
     }
 
+    public List<Follower> getFollowingStreamers() {
+        return followingStreamers;
+    }
+
+    public void setFollowingStreamers(List<Follower> followingStreamers) {
+        this.followingStreamers = followingStreamers;
+    }
 }

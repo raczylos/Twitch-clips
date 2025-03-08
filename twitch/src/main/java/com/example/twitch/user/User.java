@@ -1,73 +1,82 @@
 package com.example.twitch.user;
 
-import com.example.twitch.token.Token;
-import jakarta.persistence.*;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
 import java.util.List;
 
-//@Entity
-//@Table(name = "_user")
-
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "_user")
-public abstract class User {
+@Table(name = "USER_")
+public class User extends AbstractUser implements UserDetails {
 
-    @Id
-    @GeneratedValue
-    private Long id;
 
-    private String email;
+    @Column(name = "password", nullable = false)
+    private String password;
 
-    private String login;
 
-    private UserType userType;
-    @OneToMany(mappedBy = "user")
-    private List<Token> tokens;
+    public User() {
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    protected User() {
     }
 
-    public Long getId() {
-        return id;
+    public User(Integer id, String login, String email, String password, Role role, UserType userType) {
+        setId(id);
+        setLogin(login);
+        setEmail(email);
+        this.password = password;
+        setRole(role);
+        setUserType(userType);
+
     }
 
-    public String getEmail() {
-        return email;
+    public User(String login, String email, String password, Role role, UserType userType) {
+        setLogin(login);
+        setEmail(email);
+        this.password = password;
+        setRole(role);
+        setUserType(userType);
     }
 
-    public String getLogin() {
-        return login;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(getRole().name()));
     }
 
-    public Role getRole() {
-        return role;
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public String getUsername() {
+        return getEmail();
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public UserType getUserType() {
-        return userType;
-    }
-
-    public void setUserType(UserType userType) {
-        this.userType = userType;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

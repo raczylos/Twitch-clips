@@ -4,7 +4,10 @@ import com.example.twitch.auth.AuthenticationService;
 import com.example.twitch.auth.TwitchUsersResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -14,11 +17,10 @@ import java.util.Optional;
 @Service
 public class TwitchUserService {
 
-    @Value("${twitch-client-id}")
-    private String twitchClientId;
-
     private final TwitchUserRepository twitchUserRepository;
     private final AuthenticationService authenticationService;
+    @Value("${twitch-client-id}")
+    private String twitchClientId;
 
 
     @Autowired
@@ -26,7 +28,6 @@ public class TwitchUserService {
         this.twitchUserRepository = twitchUserRepository;
         this.authenticationService = authenticationService;
     }
-
 
 
     public Optional<TwitchUser> getTwitchUserByLogin(String login) {
@@ -37,7 +38,7 @@ public class TwitchUserService {
         return twitchUserRepository.findByTwitchId(twitchId);
     }
 
-    public Optional<TwitchUser> getTwitchUserByUserId(Long userId) {
+    public Optional<TwitchUser> getTwitchUserByUserId(Integer userId) {
         return twitchUserRepository.findById(userId);
     }
 
@@ -82,8 +83,8 @@ public class TwitchUserService {
         headers.set("Client-Id", twitchClientId);
 
         Optional<TwitchUser> twitchUser = getTwitchUserByLogin(login);
-        if(twitchUser.isPresent()) {
-            var twitchUserId =  twitchUser.get().getTwitchId();
+        if (twitchUser.isPresent()) {
+            var twitchUserId = twitchUser.get().getTwitchId();
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchApiUrl)
                     .queryParam("user_id", twitchUserId);
 

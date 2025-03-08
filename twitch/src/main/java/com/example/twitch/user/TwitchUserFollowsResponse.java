@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class TwitchUserFollowsResponse {
+
     @JsonProperty("total")
     private int total;
 
@@ -28,6 +29,7 @@ public class TwitchUserFollowsResponse {
     }
 
     public static class FollowData {
+
         @JsonProperty("broadcaster_id")
         private String streamerId;
         @JsonProperty("broadcaster_login")
@@ -55,6 +57,7 @@ public class TwitchUserFollowsResponse {
     }
 
     public static class Pagination {
+
         @JsonProperty("cursor")
         private String cursor;
 

@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TwitchTokensResponse {
-    private String accessToken;
-    private String refreshToken;
-    private Integer expiresIn;
+
+    private final String accessToken;
+    private final String refreshToken;
+    private final Integer expiresIn;
 
     @JsonCreator
     public TwitchTokensResponse(

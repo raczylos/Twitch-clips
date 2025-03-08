@@ -3,13 +3,19 @@ package com.example.twitch.clip;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "api/v1/twitch/clips")
 public class ClipController {
+
     private final ClipService clipService;
 
     @Autowired
@@ -24,7 +30,7 @@ public class ClipController {
 
     @GetMapping()
     public List<Clip> getClipsByPage(@RequestParam int page,
-                               @RequestParam int size) {
+                                     @RequestParam int size) {
         return clipService.getClipsByPage(page, size);
     }
 
@@ -42,11 +48,13 @@ public class ClipController {
     public ResponseEntity<List<ClipDto>> getFollowedStreamersPopularClips(@RequestParam("accessToken") String accessToken, @RequestParam("login") String login, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
         return ResponseEntity.ok(clipService.addFollowedStreamersClips(accessToken, login, startedAt, endedAt));
     }
+
     @GetMapping("/popular")
     public ResponseEntity<Page<ClipDto>> getAllPopularClips(@RequestParam("startedAt") String startedAt, @RequestParam("endedAt") String endedAt, @RequestParam int page,
-                                                              @RequestParam int pageSize ) {
+                                                            @RequestParam int pageSize) {
         return ResponseEntity.ok(clipService.getPopularClips(startedAt, endedAt, page, pageSize));
     }
+
     @PostMapping("/system/popular")
     public ResponseEntity<List<ClipDto>> addPopularSteamersClipsBySystem(@RequestParam("accessToken") String accessToken, @RequestParam("started_at") String startedAt, @RequestParam("ended_at") String endedAt) {
         return ResponseEntity.ok(clipService.addPopularStreamersClipsBySystem(accessToken, startedAt, endedAt));

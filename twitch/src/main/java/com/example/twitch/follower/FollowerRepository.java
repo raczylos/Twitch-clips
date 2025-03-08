@@ -7,8 +7,9 @@ import java.util.Optional;
 
 public interface FollowerRepository extends JpaRepository<Follower, Integer> {
 
-    Optional<Follower> findByStreamerIdAndUserId(Long streamerId, Long userId);
-    List<Follower> findFollowersByUserId(Long userId);
+    Optional<Follower> findByStreamerIdAndTwitchUserId(Integer streamerId, Integer userId);
+
+    List<Follower> findFollowersByTwitchUserId(Integer userId);
 
 }
 

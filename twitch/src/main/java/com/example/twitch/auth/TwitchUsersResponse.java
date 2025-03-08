@@ -12,6 +12,7 @@ public class TwitchUsersResponse {
     }
 
     public static class TwitchUserData {
+
         @JsonProperty("id")
         private String id;
         @JsonProperty("login")

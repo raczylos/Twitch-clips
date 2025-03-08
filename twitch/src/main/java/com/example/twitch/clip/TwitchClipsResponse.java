@@ -13,6 +13,7 @@ public class TwitchClipsResponse {
     }
 
     public static class ClipData {
+
         @JsonProperty("id")
         private String id;
         @JsonProperty("url")

@@ -1,12 +1,23 @@
 package com.example.twitch.auth;
 
 import com.example.twitch.config.JwtService;
-import com.example.twitch.token.*;
+import com.example.twitch.token.Token;
+import com.example.twitch.token.TokenRepository;
+import com.example.twitch.token.TokenService;
+import com.example.twitch.token.TokenType;
+import com.example.twitch.user.AbstractUser;
+import com.example.twitch.user.Role;
+import com.example.twitch.user.TwitchUser;
+import com.example.twitch.user.TwitchUserRepository;
+import com.example.twitch.user.User;
+import com.example.twitch.user.UserRepository;
 import com.example.twitch.user.UserType;
-import com.example.twitch.user.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +30,7 @@ import java.util.Optional;
 
 @Service
 public class AuthenticationService {
+
     private final UserRepository userRepository;
 
     private final TokenRepository tokenRepository;
@@ -44,7 +56,7 @@ public class AuthenticationService {
                                  TokenRepository tokenRepository, TwitchUserRepository twitchUserRepository,
                                  PasswordEncoder passwordEncoder,
                                  JwtService jwtService, TokenService tokenService, AuthenticationManager authenticationManager
-                                 ) {
+    ) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.twitchUserRepository = twitchUserRepository;
@@ -52,7 +64,7 @@ public class AuthenticationService {
         this.jwtService = jwtService;
         this.tokenService = tokenService;
         this.authenticationManager = authenticationManager;
-        this.restTemplate =  new RestTemplate();
+        this.restTemplate = new RestTemplate();
 
     }
 
@@ -60,15 +72,14 @@ public class AuthenticationService {
     public AuthenticationResponse register(RegisterRequest request) {
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        var user = new NormalUser(request.getUsername(), request.getEmail(), encodedPassword, Role.USER, UserType.User);
+        var user = new User(request.getUsername(), request.getEmail(), encodedPassword, Role.User, UserType.User);
         var savedUser = userRepository.save(user);
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-        saveUserToken(accessToken, savedUser, Type.AccessToken);
-        saveUserToken(refreshToken, savedUser, Type.RefreshToken);
+        saveUserToken(accessToken, savedUser, TokenType.AccessToken);
+        saveUserToken(refreshToken, savedUser, TokenType.RefreshToken);
         return new AuthenticationResponse(accessToken, refreshToken);
     }
-
 
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -84,20 +95,20 @@ public class AuthenticationService {
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
-        saveUserToken(accessToken, user, Type.AccessToken);
-        saveUserToken(refreshToken, user, Type.RefreshToken);
+        saveUserToken(accessToken, user, TokenType.AccessToken);
+        saveUserToken(refreshToken, user, TokenType.RefreshToken);
 
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
-    private void saveUserToken(String token, User user, Type type) {
-        var tokenToSave = new Token(token, TokenType.BEARER, false, false, user, type);
+    private void saveUserToken(String token, AbstractUser abstractUser, TokenType type) {
+        var tokenToSave = new Token(token, false, false, abstractUser, type);
         tokenRepository.save(tokenToSave);
     }
 
-    private void revokeAllUserTokens(User user){
-        var validUserTokens = tokenRepository.findAllValidTokensByUser(user.getId());
-        if(validUserTokens.isEmpty()) {
+    private void revokeAllUserTokens(AbstractUser abstractUser) {
+        var validUserTokens = tokenRepository.findAllValidTokensByUser(abstractUser.getId());
+        if (validUserTokens.isEmpty()) {
             return;
         }
         validUserTokens.forEach(token -> {
@@ -107,9 +118,9 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    private void unrevokeToken(String token, Type type) {
-        var userToken = tokenRepository.findByTokenAndType(token, type);
-        if(userToken.isEmpty()) {
+    private void unrevokeToken(String token, TokenType tokenType) {
+        var userToken = tokenRepository.findByTokenAndTokenType(token, tokenType);
+        if (userToken.isEmpty()) {
             return;
         }
         userToken.get().setExpired(false);
@@ -157,7 +168,7 @@ public class AuthenticationService {
                     .build();
         }
 
-        if (!jwtService.isTokenValid(refreshToken, specificUser) || !tokenService.isTokenInDBValid(refreshToken, Type.RefreshToken)) {
+        if (!jwtService.isTokenValid(refreshToken, specificUser) || !tokenService.isTokenInDBValid(refreshToken, TokenType.RefreshToken)) {
             return ResponseEntity
                     .status(HttpServletResponse.SC_UNAUTHORIZED)
                     .header("Error", "Invalid refresh token")
@@ -166,8 +177,8 @@ public class AuthenticationService {
 
         var accessToken = jwtService.generateToken(specificUser);
         revokeAllUserTokens(specificUser);
-        unrevokeToken(refreshToken, Type.RefreshToken);
-        saveUserToken(accessToken, specificUser, Type.AccessToken);
+        unrevokeToken(refreshToken, TokenType.RefreshToken);
+        saveUserToken(accessToken, specificUser, TokenType.AccessToken);
 
         var authResponse = new AuthenticationResponse(accessToken, refreshToken);
         return ResponseEntity.ok(authResponse);
@@ -180,7 +191,7 @@ public class AuthenticationService {
                 twitchUserData.getLogin(),
                 twitchUserData.getEmail(),
                 twitchUserData.getId(),
-                Role.USER,
+                Role.User,
                 UserType.TwitchUser
         );
 
@@ -192,8 +203,8 @@ public class AuthenticationService {
             var refreshToken = jwtService.generateRefreshToken(user);
 
             revokeAllUserTokens(user);
-            saveUserToken(accessToken, user, Type.AccessToken);
-            saveUserToken(refreshToken, user, Type.RefreshToken);
+            saveUserToken(accessToken, user, TokenType.AccessToken);
+            saveUserToken(refreshToken, user, TokenType.RefreshToken);
 
             return new AuthenticationResponse(accessToken, refreshToken);
         } else {
@@ -203,8 +214,8 @@ public class AuthenticationService {
             var refreshToken = jwtService.generateRefreshToken(twitchUser);
 
             revokeAllUserTokens(twitchUser);
-            saveUserToken(accessToken, twitchUser, Type.AccessToken);
-            saveUserToken(refreshToken, twitchUser, Type.RefreshToken);
+            saveUserToken(accessToken, twitchUser, TokenType.AccessToken);
+            saveUserToken(refreshToken, twitchUser, TokenType.RefreshToken);
 
             return new AuthenticationResponse(accessToken, refreshToken);
         }
@@ -219,7 +230,6 @@ public class AuthenticationService {
 //            twitchAccessToken = refreshResponse.getBody().getAccessToken();
 //            twitchRefreshToken = refreshResponse.getBody().getRefreshToken();
 //        }
-
 
 
         String twitchApiUrl = "https://api.twitch.tv/helix/users";
@@ -302,7 +312,6 @@ public class AuthenticationService {
 
         return tokensResponse.getBody();
     }
-
 
 
 }

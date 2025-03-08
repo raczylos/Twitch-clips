@@ -1,45 +1,55 @@
 package com.example.twitch.clip;
 
 import com.example.twitch.streamer.Streamer;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import java.util.Objects;
 
 
 @Entity
-@Table
+@Table(name = "CLIP")
 public class Clip {
 
     @Id
-    @SequenceGenerator(
-            name = "clip_sequence",
-            sequenceName = "clip_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "clip_sequence"
-    )
-    private Long id;
-    @Column(unique = true)
-    private String clipId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(name = "twitch_clip_id", unique = true, nullable = false)
+    private String twitchClipId;
 
+    @Column(name = "url", nullable = false)
     private String url;
 
+    @Column(name = "embed_url", nullable = false)
     private String embedUrl;
+    @Column(name = "broadcaster_id", nullable = false)
     private String broadcasterId;
+    @Column(name = "broadcaster_name", nullable = false)
     private String broadcasterName;
+    @Column(name = "creator_id", nullable = false)
     private String creatorId;
+    @Column(name = "creator_name", nullable = false)
     private String creatorName;
 
     private String videoId;
     private String gameId;
     private String language;
 
+    @Column(name = "clip_title", nullable = false)
     private String clipTitle;
+    @Column(name = "view_count", nullable = false)
     private Integer viewCount;
     private String createdAt;
+    @Column(name = "thumbnail_url", nullable = false)
     private String thumbnailUrl;
+    @Column(name = "clip_duration", nullable = false)
     private Float clipDuration;
     private Integer vodOffset;
 
@@ -47,11 +57,12 @@ public class Clip {
     @JoinColumn(name = "streamer_id", nullable = false)
     private Streamer streamer;
 
-    public Clip () {}
+    public Clip() {
+    }
 
-    public Clip(Long id, String clipId, String url, String embedUrl, String broadcasterId, String broadcasterName, String creatorId, String creatorName, String videoId, String gameId, String language, String clipTitle, Integer viewCount, String createdAt, String thumbnailUrl, Float clipDuration, Integer vodOffset, Streamer streamer) {
+    public Clip(Integer id, String twitchClipId, String url, String embedUrl, String broadcasterId, String broadcasterName, String creatorId, String creatorName, String videoId, String gameId, String language, String clipTitle, Integer viewCount, String createdAt, String thumbnailUrl, Float clipDuration, Integer vodOffset, Streamer streamer) {
         this.id = id;
-        this.clipId = clipId;
+        this.twitchClipId = twitchClipId;
         this.url = url;
         this.embedUrl = embedUrl;
         this.broadcasterId = broadcasterId;
@@ -70,8 +81,8 @@ public class Clip {
         this.streamer = streamer;
     }
 
-    public Clip(String clipId, String url, String embedUrl, String broadcasterId, String broadcasterName, String creatorId, String creatorName, String videoId, String gameId, String language, String clipTitle, Integer viewCount, String createdAt, String thumbnailUrl, Float clipDuration, Integer vodOffset, Streamer streamer) {
-        this.clipId = clipId;
+    public Clip(String twitchClipId, String url, String embedUrl, String broadcasterId, String broadcasterName, String creatorId, String creatorName, String videoId, String gameId, String language, String clipTitle, Integer viewCount, String createdAt, String thumbnailUrl, Float clipDuration, Integer vodOffset, Streamer streamer) {
+        this.twitchClipId = twitchClipId;
         this.url = url;
         this.embedUrl = embedUrl;
         this.broadcasterId = broadcasterId;
@@ -90,12 +101,12 @@ public class Clip {
         this.streamer = streamer;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public String getClipId() {
-        return clipId;
+    public String getTwitchClipId() {
+        return twitchClipId;
     }
 
     public String getUrl() {
@@ -166,12 +177,12 @@ public class Clip {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Clip clip = (Clip) o;
-        return Objects.equals(id, clip.id) && Objects.equals(clipId, clip.clipId) && Objects.equals(url, clip.url) && Objects.equals(embedUrl, clip.embedUrl) && Objects.equals(broadcasterId, clip.broadcasterId) && Objects.equals(broadcasterName, clip.broadcasterName) && Objects.equals(creatorId, clip.creatorId) && Objects.equals(creatorName, clip.creatorName) && Objects.equals(videoId, clip.videoId) && Objects.equals(gameId, clip.gameId) && Objects.equals(language, clip.language) && Objects.equals(clipTitle, clip.clipTitle) && Objects.equals(viewCount, clip.viewCount) && Objects.equals(createdAt, clip.createdAt) && Objects.equals(thumbnailUrl, clip.thumbnailUrl) && Objects.equals(clipDuration, clip.clipDuration) && Objects.equals(vodOffset, clip.vodOffset) && Objects.equals(streamer, clip.streamer);
+        return Objects.equals(id, clip.id) && Objects.equals(twitchClipId, clip.twitchClipId) && Objects.equals(url, clip.url) && Objects.equals(embedUrl, clip.embedUrl) && Objects.equals(broadcasterId, clip.broadcasterId) && Objects.equals(broadcasterName, clip.broadcasterName) && Objects.equals(creatorId, clip.creatorId) && Objects.equals(creatorName, clip.creatorName) && Objects.equals(videoId, clip.videoId) && Objects.equals(gameId, clip.gameId) && Objects.equals(language, clip.language) && Objects.equals(clipTitle, clip.clipTitle) && Objects.equals(viewCount, clip.viewCount) && Objects.equals(createdAt, clip.createdAt) && Objects.equals(thumbnailUrl, clip.thumbnailUrl) && Objects.equals(clipDuration, clip.clipDuration) && Objects.equals(vodOffset, clip.vodOffset) && Objects.equals(streamer, clip.streamer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, clipId, url, embedUrl, broadcasterId, broadcasterName, creatorId, creatorName, videoId, gameId, language, clipTitle, viewCount, createdAt, thumbnailUrl, clipDuration, vodOffset, streamer);
+        return Objects.hash(id, twitchClipId, url, embedUrl, broadcasterId, broadcasterName, creatorId, creatorName, videoId, gameId, language, clipTitle, viewCount, createdAt, thumbnailUrl, clipDuration, vodOffset, streamer);
     }
 }
 

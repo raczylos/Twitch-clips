@@ -13,9 +13,9 @@ public class TokenService {
     }
 
 
-    public boolean isTokenInDBValid(String jwtToken, Type type){
+    public boolean isTokenInDBValid(String jwtToken, TokenType type) {
 
-        return tokenRepository.findByTokenAndType(jwtToken, type)
+        return tokenRepository.findByTokenAndTokenType(jwtToken, type)
                 .map(token -> !token.isExpired() && !token.isRevoked())
                 .orElse(false);
     }

@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final LogoutHandler logoutHandler;
 
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider, OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler, LogoutHandler logoutHandler) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider, LogoutHandler logoutHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.authenticationProvider = authenticationProvider;
         this.logoutHandler = logoutHandler;
@@ -40,16 +40,16 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
-                    auth.requestMatchers("/api/v1/auth/**",
-                                    "/api/v1/twitch/clips/popular",
-                                    "/error",
-                                    "/swagger-ui.html/**",
-                                    "/webjars/springfox-swagger-ui/**",
-                                    "/swagger-resources/**",
-                                    "/swagger-ui/**",
-                                    "/v3/api-docs/**",
-                                    "/v3/api-docs.yaml").
-                            permitAll().anyRequest().authenticated())
+                        auth.requestMatchers("/api/v1/auth/**",
+                                        "/api/v1/twitch/clips/popular",
+                                        "/error",
+                                        "/swagger-ui.html/**",
+                                        "/webjars/springfox-swagger-ui/**",
+                                        "/swagger-resources/**",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**",
+                                        "/v3/api-docs.yaml").
+                                permitAll().anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -68,14 +68,12 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://127.0.0.1:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST"));
         configuration.addAllowedHeader("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-
 
 
 }

@@ -1,7 +1,7 @@
 package com.example.twitch.config;
 
 import com.example.twitch.token.TokenRepository;
-import com.example.twitch.token.Type;
+import com.example.twitch.token.TokenType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -24,9 +24,9 @@ public class LogoutService implements LogoutHandler {
             return;
         }
         String jwtToken = authHeader.substring(7);
-        var storedToken = tokenRepository.findByTokenAndType(jwtToken, Type.AccessToken).orElse(null);
+        var storedToken = tokenRepository.findByTokenAndTokenType(jwtToken, TokenType.AccessToken).orElse(null);
 
-        if(storedToken != null) {
+        if (storedToken != null) {
             storedToken.setExpired(true);
             storedToken.setRevoked(true);
             tokenRepository.save(storedToken);

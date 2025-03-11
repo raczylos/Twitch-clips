@@ -2,7 +2,6 @@ package com.example.twitch.clip;
 
 import com.example.twitch.follower.FollowerService;
 import com.example.twitch.streamer.StreamerList;
-import com.example.twitch.streamer.StreamerRepository;
 import com.example.twitch.streamer.StreamerService;
 import com.example.twitch.user.TwitchUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,25 +33,22 @@ public class ClipService {
 
     private final FollowerService followerService;
 
-    private final StreamerRepository streamerRepository;
-
     private final ClipMapper clipMapper;
 
     @Value("${twitch-client-id}")
     private String twitchClientId;
 
     @Autowired
-    public ClipService(ClipRepository clipRepository, TwitchUserService twitchUserService, StreamerService streamerService, FollowerService followerService, StreamerRepository streamerRepository, ClipMapper clipMapper) {
+    public ClipService(ClipRepository clipRepository, TwitchUserService twitchUserService, StreamerService streamerService, FollowerService followerService, ClipMapper clipMapper) {
         this.clipRepository = clipRepository;
         this.twitchUserService = twitchUserService;
         this.streamerService = streamerService;
         this.followerService = followerService;
-        this.streamerRepository = streamerRepository;
         this.clipMapper = clipMapper;
     }
 
     public Clip getClip(String clipId) {
-        var clip = clipRepository.findByClipId(clipId);
+        var clip = clipRepository.findByTwitchClipId(clipId);
         return clip.orElse(null);
     }
 
@@ -73,7 +69,6 @@ public class ClipService {
 
         return clipRepository.findClipsByOrderByViewCountDesc(pageable);
     }
-
 
 
     public List<ClipDto> streamerPopularClips(String token, String streamerId, String startedAt, String endedAt, Integer viewCount) {
@@ -101,12 +96,12 @@ public class ClipService {
 
         var streamer = streamerService.getStreamerByStreamerId(streamerId);
 
-        for(var clipData : response.getBody().getData()){
+        for (var clipData : response.getBody().getData()) {
 
-            var existingClip = clipRepository.findByClipId(clipData.getId());
+            var existingClip = clipRepository.findByTwitchClipId(clipData.getId());
 
-            if(existingClip.isEmpty()) {
-                if(clipData.getView_count() < viewCount) {
+            if (existingClip.isEmpty()) {
+                if (clipData.getView_count() < viewCount) {
                     System.out.println("Clip " + clipData.getId() + " rejected for too few views " + clipData.getView_count());
                 } else {
 //                    CHANGE - PASS OBJECT TO CONSTRUCTOR RATHER THAN THAT FROM BELOW
@@ -136,14 +131,14 @@ public class ClipService {
 
         List<ClipDto> clips = new ArrayList<>();
 
-        if(follows == null){
+        if (follows == null) {
             System.out.println("User doesnt have follows");
             return null;
         }
 
-        for(var follow: follows) {
+        for (var follow : follows) {
             var streamer = streamerService.getStreamer(follow.toString());
-            if(streamer == null) {
+            if (streamer == null) {
                 continue;
             }
             var streamerClips = streamerPopularClips(token, streamer.getTwitchId(), startedAt, endedAt, 200);
@@ -158,7 +153,7 @@ public class ClipService {
 
         List<Clip> clips = new ArrayList<>();
 
-        for(var streamer: StreamerList.values()) {
+        for (var streamer : StreamerList.values()) {
             System.out.println(streamer.toString());
             var streamerId = streamerService.getStreamer(streamer.toString()).getTwitchId();
             var streamerClips = clipRepository.findClipsByBroadcasterIdAndViewCountGreaterThanAndCreatedAtBetweenOrderByViewCountDesc(streamerId, 100, startedAt, endedAt);
@@ -198,10 +193,10 @@ public class ClipService {
 
         List<ClipDto> clips = new ArrayList<>();
 
-        for(var streamerLogin: StreamerList.values()) {
+        for (var streamerLogin : StreamerList.values()) {
             System.out.println(streamerLogin.toString());
             var streamer = streamerService.getStreamer(streamerLogin.toString());
-            if(streamer == null) {
+            if (streamer == null) {
                 continue;
             }
 

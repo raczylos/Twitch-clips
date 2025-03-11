@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client'
 import Root from "./components/Root"
 
 
-// import ClipDetails from './pages/Clips/ClipDetails';
 import PopularClips from './pages/Clips/PopularClips'
 import Login from './pages/Login';
 import ProtectedRoute from './ProtectedRoute';
@@ -18,25 +17,30 @@ import './styles.css'
 
 function Main() {
 
-    return(
-        <BrowserRouter>
-            <Routes>
-                <Route element={<Root />} path="/">
-                    <Route element={<Login />} path="/login"></Route>
-                    <Route element={<ProtectedRoute />}>
-                        <Route element={<PopularClips />} path="/popular"></Route>
-                        {/* <Route element={<ClipDetails />} path="/clip/:id"></Route> */}
-                    </Route>
-                </Route>
-            </Routes>
-        </BrowserRouter>
-    )
+	return(
+		<BrowserRouter>
+			<Routes>
+				<Route element={<Root />} path="/">
+					<Route element={<Login />} path="/login"></Route>
+					<Route element={<ProtectedRoute />}>
+						<Route element={<PopularClips />} path="/popular"></Route>
+						{/* <Route element={<ClipDetails />} path="/clip/:id"></Route> */}
+					</Route>
+				</Route>
+			</Routes>
+		</BrowserRouter>
+	)
 }
 
 export default Main;
 
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-    <Main />
-);
+const rootElement = document.getElementById('root');
+if (rootElement) {
+	ReactDOM.createRoot(rootElement).render(
+		<Main />
+	);
+} else {
+	console.error("Root element not found");
+}
 

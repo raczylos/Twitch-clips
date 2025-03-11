@@ -6,28 +6,25 @@ import React from 'react';
 
 const Logout = () => {
 
-    const {fetchData, status} = useFetch();
+	const {fetchData, status} = useFetch();
 
-    const onLogoutClick = async() => {
-        await fetchData(`http://localhost:8080/api/v1/auth/logout`, 'POST');
-        console.log("lolz", status)
+	const onLogoutClick = async() => {
+		await fetchData(`http://localhost:8080/api/v1/auth/logout`, 'POST');
+	};
 
-1
-    };
-
-    useEffect(() => {
-        if (status !== null) {
-            console.log("Status:", status);
-            handleLogout(status); 
-        }
-    }, [status]);
+	useEffect(() => {
+		if (status !== null) {
+			console.log("Status:", status);
+			handleLogout(status); 
+		}
+	}, [status]);
 
 
-    return (
-        <button onClick={onLogoutClick}>
-            Log Out
-        </button>
-    );
+	return (
+		<button onClick={onLogoutClick}>
+			Log Out
+		</button>
+	);
 };
 
 export default Logout;

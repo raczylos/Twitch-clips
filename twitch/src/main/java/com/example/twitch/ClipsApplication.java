@@ -1,6 +1,5 @@
 package com.example.twitch;
 
-import com.example.twitch.clip.Clip;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,10 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ClipsApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ClipsApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(ClipsApplication.class, args);
+    }
 
 
 }

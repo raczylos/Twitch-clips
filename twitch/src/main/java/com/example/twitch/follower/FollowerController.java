@@ -1,6 +1,5 @@
 package com.example.twitch.follower;
 
-import com.example.twitch.streamer.Streamer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,14 +19,14 @@ public class FollowerController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Follower> addFollower(@RequestParam("userId") Long userId, @RequestParam("streamerId") Long streamerId, @RequestParam("streamerLogin") String streamerLogin) {
+    public ResponseEntity<FollowerDto> addFollower(@RequestParam("twitchUserId") Integer twitchUserId, @RequestParam("streamerId") Integer streamerId) {
 
-        return ResponseEntity.ok(followerService.addFollower(userId, streamerId, streamerLogin));
+        return ResponseEntity.ok(followerService.addFollower(twitchUserId, streamerId));
     }
 
     @PostMapping("/addAll")
-    public ResponseEntity<List<Follower>> addFollowers(@RequestParam("userLogin") String userLogin, @RequestParam("twitchAccessToken") String twitchAccessToken, @RequestParam("twitchRefreshToken") String twitchRefreshToken) {
+    public ResponseEntity<List<FollowerDto>> addAllUserFollows(@RequestParam("userLogin") String userLogin, @RequestParam("twitchAccessToken") String twitchAccessToken) {
 
-        return ResponseEntity.ok(followerService.addFollowers(userLogin, twitchAccessToken, twitchRefreshToken));
+        return ResponseEntity.ok(followerService.addAllUserFollows(userLogin, twitchAccessToken));
     }
 }

@@ -1,7 +1,7 @@
 package com.example.twitch.clip;
 
 public record ClipDto(
-        String clipId,
+        String twitchClipId,
         String url,
         String embedUrl,
         String broadcasterId,

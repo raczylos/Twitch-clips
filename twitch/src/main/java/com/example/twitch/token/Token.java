@@ -1,46 +1,60 @@
 package com.example.twitch.token;
 
-import com.example.twitch.user.User;
-import com.example.twitch.user.UserType;
-import jakarta.persistence.*;
+import com.example.twitch.user.AbstractUser;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "TOKEN")
 public class Token {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true)
+    @Column(name = "token", nullable = false)
     private String token;
 
+    @Column(name = "token_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private TokenType  tokenType;
+    private TokenType tokenType;
 
-    @Enumerated(EnumType.STRING)
-    private Type  type;
-
-
+    @Column(name = "expired", nullable = false)
     private boolean expired;
 
+    @Column(name = "revoked", nullable = false)
     private boolean revoked;
 
-
-
     @ManyToOne
-    @JoinColumn(name="user_id")
-    private User user;
+    @JoinColumn(name = "user_id", nullable = false)
+    private AbstractUser abstractUser;
 
     public Token() {
     }
 
-    public Token(String token, TokenType tokenType, boolean expired, boolean revoked, User user, Type type) {
+    public Token(Integer id, String token, TokenType tokenType, boolean expired, boolean revoked, AbstractUser abstractUser) {
+        this.id = id;
         this.token = token;
         this.tokenType = tokenType;
         this.expired = expired;
         this.revoked = revoked;
-        this.user = user;
-        this.type = type;
+        this.abstractUser = abstractUser;
+    }
+
+    public Token(String token, boolean expired, boolean revoked, AbstractUser abstractUser, TokenType type) {
+        this.token = token;
+        this.expired = expired;
+        this.revoked = revoked;
+        this.abstractUser = abstractUser;
+        this.tokenType = type;
     }
 
     public String getToken() {
@@ -59,14 +73,6 @@ public class Token {
         this.tokenType = tokenType;
     }
 
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
-
     public boolean isExpired() {
         return expired;
     }
@@ -82,4 +88,10 @@ public class Token {
     public void setRevoked(boolean revoked) {
         this.revoked = revoked;
     }
+
+    public AbstractUser getAbstractUser() {
+        return abstractUser;
+    }
+
+
 }

@@ -1,48 +1,60 @@
 package com.example.twitch.streamer;
 
 import com.example.twitch.clip.Clip;
-import jakarta.persistence.*;
+import com.example.twitch.follower.Follower;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "streamer")
+@Table(name = "STREAMER")
 public class Streamer {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(name = "login", unique = true, nullable = false)
     private String login;
+    @Column(name = "display_name", unique = true, nullable = false)
     private String displayName;
-    @Column(unique = true)
+    @Column(name = "twitch_id", unique = true, nullable = false)
     private String twitchId;
     private String profileImageUrl;
 
     @OneToMany(mappedBy = "streamer", fetch = FetchType.LAZY)
-    private List<Clip> clips;
+    private List<Clip> clips = new ArrayList<>();
+
+    @OneToMany(mappedBy = "streamer", fetch = FetchType.LAZY)
+    private List<Follower> followers = new ArrayList<>();
 
     public Streamer() {
     }
 
-    public Streamer(Long id, String login, String displayName, String twitchId, String profileImageUrl, List<Clip> clips) {
+    public Streamer(Integer id, String login, String displayName, String twitchId, String profileImageUrl) {
         this.id = id;
         this.login = login;
         this.displayName = displayName;
         this.twitchId = twitchId;
         this.profileImageUrl = profileImageUrl;
-        this.clips = clips;
     }
 
-    public Streamer(String login, String displayName, String twitchId, String profileImageUrl, List<Clip> clips) {
+    public Streamer(String login, String displayName, String twitchId, String profileImageUrl) {
         this.login = login;
         this.displayName = displayName;
         this.twitchId = twitchId;
         this.profileImageUrl = profileImageUrl;
-        this.clips = clips;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -64,6 +76,18 @@ public class Streamer {
 
     public List<Clip> getClips() {
         return clips;
+    }
+
+    public void setClips(List<Clip> clips) {
+        this.clips = clips;
+    }
+
+    public List<Follower> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(List<Follower> followers) {
+        this.followers = followers;
     }
 
     @Override

@@ -113,7 +113,6 @@
   "exclude": [
     "node_modules",              
     "dist",                      
-    "postcss.config.js",          
-    "vite.config.js"              
+    "postcss.config.js"          
   ]
 }

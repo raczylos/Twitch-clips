@@ -2,9 +2,9 @@ package com.example.twitch.auth;
 
 public class AuthenticationRequest {
 
-//    private String username;
-    private String email;
-    private String password;
+    //    private String username;
+    private final String email;
+    private final String password;
 
     public AuthenticationRequest(String email, String password) {
         this.email = email;

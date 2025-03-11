@@ -4,29 +4,31 @@ import com.example.twitch.auth.AuthenticationService;
 import com.example.twitch.auth.TwitchUsersResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TwitchUserService {
 
+    private final TwitchUserRepository twitchUserRepository;
     @Value("${twitch-client-id}")
     private String twitchClientId;
 
-    private final TwitchUserRepository twitchUserRepository;
-    private final AuthenticationService authenticationService;
-
 
     @Autowired
-    public TwitchUserService(TwitchUserRepository twitchUserRepository, AuthenticationService authenticationService) {
+    public TwitchUserService(TwitchUserRepository twitchUserRepository) {
         this.twitchUserRepository = twitchUserRepository;
-        this.authenticationService = authenticationService;
     }
-
 
 
     public Optional<TwitchUser> getTwitchUserByLogin(String login) {
@@ -37,7 +39,7 @@ public class TwitchUserService {
         return twitchUserRepository.findByTwitchId(twitchId);
     }
 
-    public Optional<TwitchUser> getTwitchUserByUserId(Long userId) {
+    public Optional<TwitchUser> getTwitchUserByUserId(Integer userId) {
         return twitchUserRepository.findById(userId);
     }
 
@@ -60,21 +62,11 @@ public class TwitchUserService {
                 TwitchUsersResponse.class
         );
 
-        var twitchUserResponseData = twitchUserResponse.getBody();
-
-        return twitchUserResponseData;
+        return twitchUserResponse.getBody();
 
     }
 
-    public TwitchUserFollowsResponse getTwitchUserFollows(String twitchAccessToken, String twitchRefreshToken, String login) {
-        var response = authenticationService.validateTwitchAccessToken(twitchAccessToken);
-
-//        if(response.getStatusCode() == HttpStatus.UNAUTHORIZED){
-//            var refreshResponse = authenticationService.refreshTwitchAccessToken(twitchRefreshToken);
-//            twitchAccessToken = refreshResponse.getBody().getAccessToken();
-//            twitchRefreshToken = refreshResponse.getBody().getRefreshToken();
-//        }
-
+    public TwitchUserFollowsResponse.FollowData[] getTwitchUserFollows(String twitchAccessToken, String login) {
         String twitchApiUrl = "https://api.twitch.tv/helix/channels/followed";
 
         HttpHeaders headers = new HttpHeaders();
@@ -82,8 +74,8 @@ public class TwitchUserService {
         headers.set("Client-Id", twitchClientId);
 
         Optional<TwitchUser> twitchUser = getTwitchUserByLogin(login);
-        if(twitchUser.isPresent()) {
-            var twitchUserId =  twitchUser.get().getTwitchId();
+        if (twitchUser.isPresent()) {
+            var twitchUserId = twitchUser.get().getTwitchId();
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchApiUrl)
                     .queryParam("user_id", twitchUserId);
 
@@ -94,7 +86,22 @@ public class TwitchUserService {
                     new HttpEntity<>(headers),
                     TwitchUserFollowsResponse.class
             );
-            return twitchUserFollowsResponse.getBody();
+            List<TwitchUserFollowsResponse.FollowData> allFollowData = new ArrayList<>(Arrays.asList(twitchUserFollowsResponse.getBody().getData()));
+            while(twitchUserFollowsResponse.getBody().getPagination().getCursor() != null){
+                builder.replaceQueryParam("after", twitchUserFollowsResponse.getBody().getPagination().getCursor());
+
+                twitchUserFollowsResponse = restTemplate.exchange(
+                        builder.toUriString(),
+                        HttpMethod.GET,
+                        new HttpEntity<>(headers),
+                        TwitchUserFollowsResponse.class
+                );
+                allFollowData.addAll(Arrays.asList(twitchUserFollowsResponse.getBody().getData()));
+            }
+
+            TwitchUserFollowsResponse.FollowData[] mergedArray = allFollowData.toArray(new TwitchUserFollowsResponse.FollowData[0]);
+
+            return mergedArray;
         } else {
             System.out.println("User with that email is not in a database");
             return null;

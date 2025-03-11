@@ -33,8 +33,8 @@ function ClipList(props: props) {
 		
 		setShowSpinner(true);
 		const timer = setTimeout(() => {
-            setShowSpinner(false);
-        }, 150);
+			setShowSpinner(false);
+		}, 150);
 
 		return () => clearTimeout(timer);
 
@@ -42,20 +42,20 @@ function ClipList(props: props) {
 
 
 	useEffect(() => {
-        if (!isClipsLoading && clips && !showSpinner) {
+		if (!isClipsLoading && clips && !showSpinner) {
 			setTotalPages(clips?.totalPages);
-            setIsPageLoaded(true)
-        }
-    }, [clips, isClipsLoading, setIsPageLoaded, showSpinner]);
+			setIsPageLoaded(true)
+		}
+	}, [clips, isClipsLoading, setIsPageLoaded, showSpinner]);
 
 
 	return (
 		<>	
 			{
 				(isClipsLoading  || !isPageLoaded || showSpinner) &&
-					<div  className="flex justify-center mt-10">
-						<div> <SpinnerCircular/> </div>
-					</div>
+				<div  className="flex justify-center mt-10">
+					<div> <SpinnerCircular/> </div>
+				</div>
 			}
 			{
 				!isClipsLoading && clips && !showSpinner && isPageLoaded &&
@@ -66,7 +66,7 @@ function ClipList(props: props) {
 								<ClipCard clip={clip}/>
 							</li>
 	
-						))}
+				        ))}
 					</ul>
 				
 				</div>

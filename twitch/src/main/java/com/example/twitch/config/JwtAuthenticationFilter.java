@@ -1,13 +1,13 @@
 package com.example.twitch.config;
 
 import com.example.twitch.token.TokenService;
-import com.example.twitch.token.Type;
+import com.example.twitch.token.TokenType;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import org.springframework.lang.NonNull;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -36,32 +35,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
 
-
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-                final String authHeader = request.getHeader("Authorization");
-                if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                    filterChain.doFilter(request, response);
-                    return;
-                }
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-                String jwtToken = authHeader.substring(7);
+        String jwtToken = authHeader.substring(7);
 
-                try {
-                    handleJwtAuthentication(jwtToken, request);
-                } catch(ExpiredJwtException e) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("JWT expired");
-                    return;
-                }
+        try {
+            handleJwtAuthentication(jwtToken, request);
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("JWT expired");
+            return;
+        }
 
-                filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response);
 
-            }
+    }
 
 
     private void handleJwtAuthentication(String jwtToken, HttpServletRequest request) {
@@ -72,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            if (jwtService.isTokenValid(jwtToken, userDetails) && tokenService.isTokenInDBValid(jwtToken, Type.AccessToken)) {
+            if (jwtService.isTokenValid(jwtToken, userDetails) && tokenService.isTokenInDBValid(jwtToken, TokenType.AccessToken)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -85,7 +83,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return request.getServletPath().startsWith("/api/v1/auth");
     }
 }

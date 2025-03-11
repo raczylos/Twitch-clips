@@ -1,76 +1,68 @@
 package com.example.twitch.follower;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
+import com.example.twitch.streamer.Streamer;
+import com.example.twitch.user.TwitchUser;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
-@Table
+@Table(name = "FOLLOWER")
 public class Follower {
+
     @Id
-    @SequenceGenerator(
-            name = "follower_sequence",
-            sequenceName = "follower_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "follower_sequence"
-    )
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "twitch_user_id", nullable = false)
+    private TwitchUser twitchUser;
 
-    private Long streamerId;
+    @ManyToOne
+    @JoinColumn(name = "streamer_id", nullable = false)
+    private Streamer streamer;
 
-    private String streamerLogin;
 
     public Follower() {
 
     }
-    public Follower(Long id, Long userId, Long streamerId, String streamerLogin) {
+
+    public Follower(Integer id, TwitchUser twitchUser, Streamer streamer) {
         this.id = id;
-        this.userId = userId;
-        this.streamerId = streamerId;
-        this.streamerLogin = streamerLogin;
+        this.twitchUser = twitchUser;
+        this.streamer = streamer;
     }
 
-    public Follower(Long userId, Long streamerId, String streamerLogin) {
-        this.userId = userId;
-        this.streamerId = streamerId;
-        this.streamerLogin = streamerLogin;
+    public Follower(TwitchUser twitchUser, Streamer streamer) {
+        this.twitchUser = twitchUser;
+        this.streamer = streamer;
     }
 
-
-
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public TwitchUser getTwitchUser() {
+        return twitchUser;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setTwitchUser(TwitchUser twitchUser) {
+        this.twitchUser = twitchUser;
     }
 
-    public Long getStreamerId() {
-        return streamerId;
+    public Streamer getStreamer() {
+        return streamer;
     }
 
-    public void setStreamerId(Long streamerId) {
-        this.streamerId = streamerId;
-    }
-
-    public String getStreamerLogin() {
-        return streamerLogin;
-    }
-
-    public void setStreamerLogin(String streamerLogin) {
-        this.streamerLogin = streamerLogin;
+    public void setStreamer(Streamer streamer) {
+        this.streamer = streamer;
     }
 }

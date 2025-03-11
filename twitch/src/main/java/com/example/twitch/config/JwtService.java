@@ -21,6 +21,7 @@ public class JwtService {
 
     @Value("${jwt-secret-key}")
     private String SECRET_KEY;
+
     public String extractUsername(String jwtToken) {
         return extractClaims(jwtToken, Claims::getSubject);
 
@@ -43,6 +44,7 @@ public class JwtService {
     ) {
         return buildToken(new HashMap<>(), userDetails, 1000 * 60 * 60 * 24 * 10); // 10 days
     }
+
     public String buildToken(
             Map<String, Objects> extraClaims,
             UserDetails userDetails,

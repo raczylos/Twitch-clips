@@ -1,6 +1,7 @@
 package com.example.twitch.auth;
 
 public class AuthenticationResponse {
+
     private final String accessToken;
     private final String refreshToken;
 

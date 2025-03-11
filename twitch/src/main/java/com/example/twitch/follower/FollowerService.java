@@ -21,14 +21,16 @@ public class FollowerService {
     private final TwitchUserService twitchUserService;
     private final TwitchUserRepository twitchUserRepository;
     private final StreamerRepository streamerRepository;
+    private final FollowerMapper followerMapper;
 
     @Autowired
-    public FollowerService(FollowerRepository followerRepository, StreamerService streamerService, TwitchUserService twitchUserService, TwitchUserRepository twitchUserRepository, StreamerRepository streamerRepository) {
+    public FollowerService(FollowerRepository followerRepository, StreamerService streamerService, TwitchUserService twitchUserService, TwitchUserRepository twitchUserRepository, StreamerRepository streamerRepository, FollowerMapper followerMapper) {
         this.followerRepository = followerRepository;
         this.streamerService = streamerService;
         this.twitchUserService = twitchUserService;
         this.twitchUserRepository = twitchUserRepository;
         this.streamerRepository = streamerRepository;
+        this.followerMapper = followerMapper;
     }
 
     public List<Follower> getFollowers(Integer userId) {
@@ -41,7 +43,7 @@ public class FollowerService {
         return followers;
     }
 
-    public Follower addFollower(Integer twitchUserId, Integer streamerId) {
+    public FollowerDto addFollower(Integer twitchUserId, Integer streamerId) {
         var follower = followerRepository.findByStreamerIdAndTwitchUserId(streamerId, twitchUserId);
         if (follower.isPresent()) {
             System.out.println("Follower already exists in database");
@@ -51,15 +53,25 @@ public class FollowerService {
                 streamerRepository.findById(streamerId).get());
         followerRepository.save(newFollower);
 
-        return newFollower;
+        return followerMapper.entityToFollowerDto(newFollower);
     }
 
-    public List<Follower> addFollowers(String userLogin, String twitchAccessToken, String twitchRefreshToken) {
+    public List<FollowerDto> addAllUserFollows(String userLogin, String twitchAccessToken) {
 
         var user = twitchUserService.getTwitchUserByLogin(userLogin);
-        var follows = twitchUserService.getTwitchUserFollows(twitchAccessToken, twitchRefreshToken, userLogin);
-        List<Follower> followers = new ArrayList<>();
-        for (var follow : follows.getData()) {
+        if(user.isPresent()) {
+            //            TODO ERROR MESSAGE
+            System.out.println("User doesn't exists in database");
+            return null;
+        }
+        var follows = twitchUserService.getTwitchUserFollows(twitchAccessToken, userLogin);
+        if(follows == null) {
+            //            TODO ERROR MESSAGE
+            System.out.println("User doesn't have any followers");
+            return null;
+        }
+        List<FollowerDto> followers = new ArrayList<>();
+        for (var follow : follows) {
             Streamer streamer;
             try {
                 streamer = streamerService.addStreamer(twitchAccessToken, follow.getStreamerLogin());
@@ -71,7 +83,7 @@ public class FollowerService {
             }
 
             if (streamer != null) {
-                var newFollower = addFollower(user.get().getId(), streamer.getId());
+                FollowerDto newFollower = addFollower(user.get().getId(), streamer.getId());
                 if (newFollower != null) {
                     followers.add(newFollower);
                 }

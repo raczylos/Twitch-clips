@@ -19,14 +19,14 @@ public class FollowerController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Follower> addFollower(@RequestParam("twitchUserId") Integer twitchUserId, @RequestParam("streamerId") Integer streamerId) {
+    public ResponseEntity<FollowerDto> addFollower(@RequestParam("twitchUserId") Integer twitchUserId, @RequestParam("streamerId") Integer streamerId) {
 
         return ResponseEntity.ok(followerService.addFollower(twitchUserId, streamerId));
     }
 
     @PostMapping("/addAll")
-    public ResponseEntity<List<Follower>> addFollowers(@RequestParam("userLogin") String userLogin, @RequestParam("twitchAccessToken") String twitchAccessToken, @RequestParam("twitchRefreshToken") String twitchRefreshToken) {
+    public ResponseEntity<List<FollowerDto>> addAllUserFollows(@RequestParam("userLogin") String userLogin, @RequestParam("twitchAccessToken") String twitchAccessToken) {
 
-        return ResponseEntity.ok(followerService.addFollowers(userLogin, twitchAccessToken, twitchRefreshToken));
+        return ResponseEntity.ok(followerService.addAllUserFollows(userLogin, twitchAccessToken));
     }
 }

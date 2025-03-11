@@ -61,7 +61,6 @@ public class TwitchUserFollowsResponse {
         @JsonProperty("cursor")
         private String cursor;
 
-
         public String getCursor() {
             return cursor;
         }

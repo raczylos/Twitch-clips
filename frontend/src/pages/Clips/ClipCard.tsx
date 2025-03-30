@@ -13,9 +13,9 @@ function ClipCard({ clip }: Props) {
 			<div className="clip-card">
 				<div className="card-title w-[300px]">
 					<Link to={`/clip/${clip.clipId}`}>
-						<h2>{clip.clipTitle}</h2>
+						<h5>{clip.clipTitle}</h5>
 					</Link>
-				</div>
+				</div>	
   
 				<div className="card-content">
 					<Link to={`/clip/${clip.clipId}`}>

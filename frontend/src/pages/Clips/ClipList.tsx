@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import ClipCard from "./ClipCard";
-import Spinner from "../../components/Spinner";
 
 import useFetch from '../../hooks/useFetch';
 import PropTypes from 'prop-types';
@@ -12,8 +11,8 @@ type props = {
 	method: string,
 	currentPage: number,
 	pageSize: number,
-	setTotalPages: Function;
-	setIsPageLoaded: Function,
+	setTotalPages: Dispatch<SetStateAction<number>>;
+	setIsPageLoaded: Dispatch<SetStateAction<boolean>>,
 	isPageLoaded: boolean,
 	startedAt: string,
 	endedAt: string,
@@ -66,7 +65,7 @@ function ClipList(props: props) {
 								<ClipCard clip={clip}/>
 							</li>
 	
-				        ))}
+						))}
 					</ul>
 				
 				</div>
@@ -75,12 +74,18 @@ function ClipList(props: props) {
 	);
 }
 
-
-
 export default ClipList;
 
 
 ClipList.propTypes = {
 	url: PropTypes.string.isRequired,
 	method: PropTypes.string.isRequired,
+	currentPage: PropTypes.number.isRequired,
+	pageSize: PropTypes.number.isRequired,
+	setTotalPages: PropTypes.func.isRequired,
+	setIsPageLoaded: PropTypes.func.isRequired,
+	isPageLoaded: PropTypes.bool.isRequired,
+	startedAt: PropTypes.string.isRequired,
+	endedAt: PropTypes.string.isRequired,
+
 };

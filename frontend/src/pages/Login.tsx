@@ -44,31 +44,45 @@ const Login = () => {
 
 	return (
 		<>
-			<form onSubmit={handleLoginSubmit}>
-				<label htmlFor="username">Username:</label>
-				<input
-					type="text"
-					id="username"
-					name="username"
-					value={loginFormData.username}
-					onChange={(event) => setLoginFormData({...loginFormData, username: event.target.value})}
-				/>
+			<div className='flex-1 flex justify-center items-center h-[calc(100vh-60px)] pb-60'>
+				<div className="form-card">
+					<h2 className='pb-4'>Log in</h2>
+					<form onSubmit={handleLoginSubmit} className="flex flex-col gap-2">
+						<label htmlFor="username">Username:</label>
+						<input
+							type="text"
+							id="username"
+							name="username"
+							value={loginFormData.username}
+							onChange={(event) => setLoginFormData({...loginFormData, username: event.target.value})}
+							required
+							placeholder="username"
+							className="tw-input"
+							
+						/>
 
 
-				<label htmlFor="password">Password:</label>
-				<input
-					type="password"
-					id="password"
-					name="password"
-					value={loginFormData.password}
-					onChange={(event) => setLoginFormData({...loginFormData, password: event.target.value})}
-				/>
+						<label htmlFor="password">Password:</label>
+						<input
+							type="password"
+							id="password"
+							name="password"
+							value={loginFormData.password}
+							onChange={(event) => setLoginFormData({...loginFormData, password: event.target.value})}
+							required
+							placeholder="•••••••••"
+							className="tw-input"
+						/>
 
 
-				<button type="submit">Login</button>
-			</form>
+						<button className='tw-button-primary' type="submit">Login</button>
+						<p className="flex justify-center">or</p>
+						<TwitchLogin />
+					</form>
 
-			<TwitchLogin />
+					
+				</div>
+			</div>
 		</>
         
 	);

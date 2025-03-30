@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-export const handleLogout = (status) => {
+export const handleLogout = (status: number) => {
 	try {
 
 		console.log("status", status)

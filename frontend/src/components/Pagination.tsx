@@ -106,7 +106,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: Props) => {
 	return (
 		<>
 			{totalPages > 1 && (
-				<nav className="flex justify-center items-center gap-2">
+				<nav className="flex justify-center items-center gap-2 p-[10px]">
 					<button
 						onClick={() => handlePageChange(currentPage - 1)}
 						disabled={currentPage === 0}
@@ -149,7 +149,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: Props) => {
 								<button
 									key={key}
 									onClick={() => handlePageChange(page)}
-									className={`px-3 py-1 border rounded ${currentPage === page ? "bg-blue-500 text-white" : ""}`}
+									className={`px-3 py-1 border rounded ${currentPage === page ? "bg-[#646cff] text-white" : ""}`}
 								>
 									{page + 1}
 								</button>

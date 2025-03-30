@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import useFetch from '../hooks/useFetch';
 import Cookies from 'js-cookie';
+import { FaTwitch } from "react-icons/fa";
 
 const TwitchLogin = () => {
 
@@ -51,9 +52,14 @@ const TwitchLogin = () => {
 	}
 
 	return (
-		<div>
-			<button onClick={handleTwitchLogin}>Login with Twitch</button>
-		</div>
+		<>
+			<button className='flex justify-center items-center gap-2 tw-twitch-button'
+				onClick={handleTwitchLogin} >
+				<FaTwitch />
+				Login with Twitch
+			</button>
+		</>
+		
 	);
 };
 

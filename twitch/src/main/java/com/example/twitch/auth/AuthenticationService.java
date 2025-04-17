@@ -238,11 +238,12 @@ public class AuthenticationService {
         headers.setBearerAuth(twitchAccessToken);
         headers.set("Client-Id", twitchClientId);
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchApiUrl);
+//        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(twitchApiUrl);
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<TwitchUsersResponse> twitchUserResponse = restTemplate.exchange(
-                builder.toUriString(),
+//                builder.toUriString(),
+                twitchApiUrl,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 TwitchUsersResponse.class
@@ -280,8 +281,7 @@ public class AuthenticationService {
                 .queryParam("client_id", twitchClientId)
                 .queryParam("client_secret", twitchClientSecret)
                 .queryParam("code", code)
-                .queryParam("redirect_uri", twitchRedirectUri)
-                .queryParam("grant_type", "authorization_code");
+                .queryParam("grant_type", "client_credentials");
 
 
         TwitchTokensResponse tokensResponse = restTemplate.postForObject(builder.toUriString(), null, TwitchTokensResponse.class);

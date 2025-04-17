@@ -1,5 +1,5 @@
 import  { useState, useEffect } from 'react';
-import useFetch from '../hooks/useFetch';
+import useFetch from '../../hooks/useFetch';
 import TwitchLogin from './TwitchLogin';
 import Cookies from 'js-cookie';
 import React from 'react';
@@ -78,6 +78,11 @@ const Login = () => {
 						<button className='tw-button-primary' type="submit">Login</button>
 						<p className="flex justify-center">or</p>
 						<TwitchLogin />
+						<p className="flex justify-center">
+							Do not have an account?
+							&nbsp;
+							<a href="/register" className="text-blue-500 hover:underline"> Sign up</a>
+						</p>
 					</form>
 
 					

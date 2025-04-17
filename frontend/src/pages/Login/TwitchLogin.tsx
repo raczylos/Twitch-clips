@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import useFetch from '../hooks/useFetch';
+import useFetch from '../../hooks/useFetch';
 import Cookies from 'js-cookie';
 import { FaTwitch } from "react-icons/fa";
 

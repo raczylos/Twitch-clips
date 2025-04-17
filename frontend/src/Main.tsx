@@ -5,7 +5,7 @@ import Root from "./components/Root"
 
 
 import PopularClips from './pages/Clips/PopularClips'
-import Login from './pages/Login';
+import Login from './pages/Login/Login';
 import ProtectedRoute from './ProtectedRoute';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
